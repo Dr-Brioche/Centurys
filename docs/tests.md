@@ -28,7 +28,7 @@ python3 -m http.server 8000
 Ouvrir la console du navigateur (F12) pendant une partie :
 
 ```js
-const { etat } = await import('/jeu/systems/etat.js');
+const { etat } = await import('./jeu/systems/etat.js');
 
 etat.camps.joueur.or = 99999;          // riche
 etat.camps.joueur.xp = 99999;          // évolution immédiate (touche E)
