@@ -8,8 +8,8 @@
 import { R } from './data/reglages.js';
 import { etat } from './systems/etat.js';
 import { appliquerTextes, definirLangue, langue, t } from './systems/langue.js';
-import { demarrerPartie, majJeu, acheterUnite, ameliorerRevenu,
-         evoluer, lancerSpecial, annulerDernier } from './systems/combat.js';
+import { demarrerPartie, majJeu, acheterUnite, ameliorerRevenu, evoluer,
+         lancerSpecial, annulerDernier, acheterTourelle } from './systems/combat.js';
 import { majIA } from './systems/ia.js';
 import { dessinerScene } from './rendu/scene.js';
 import { initHud, majHud, majBoutonSon } from './ui/hud.js';
@@ -158,6 +158,7 @@ function initClavier() {
     switch (k) {
       case '1': case '2': case '3': acheterUnite(j, Number(k) - 1); break;
       case '4': ameliorerRevenu(j); break;
+      case 't': acheterTourelle(j); break;
       case 'e': evoluer(j); break;
       case 'a': lancerSpecial(j); break;
       case 'backspace': annulerDernier(j); ev.preventDefault(); break;

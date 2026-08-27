@@ -30,6 +30,11 @@ export const R = {
   // --- La file d'entraînement
   fileMax: 5,              // nombre d'unités qu'on peut mettre en attente
 
+  // --- Les tourelles de château
+  tourellesMax: 3,             // emplacements sur chaque château
+  tourelleMult: [1, 1.5, 2.1], // l'emplacement n°2 puis n°3 coûtent plus cher
+  tourelleMiseAJour: 0.8,      // remplacer une vieille tourelle coûte 80 % du prix
+
   // --- Le combat
   ecart: 8,                // espace laissé entre deux alliés qui se suivent
   degatsChateauMult: 1,    // multiplicateur de dégâts contre un château

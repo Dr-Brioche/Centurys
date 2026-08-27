@@ -10,8 +10,9 @@ import { R, coutRevenu, revenuDe } from '../data/reglages.js';
 import { AGES, xpPourEvoluer } from '../data/ages.js';
 import { etat } from '../systems/etat.js';
 import { t, nomDe } from '../systems/langue.js';
-import { acheterUnite, ameliorerRevenu, evoluer, peutEvoluer,
-         lancerSpecial, annulerDernier } from '../systems/combat.js';
+import { acheterUnite, ameliorerRevenu, evoluer, peutEvoluer, lancerSpecial,
+         annulerDernier, acheterTourelle, coutTourelle,
+         tourelleADepasser } from '../systems/combat.js';
 import { dessinerUnite } from '../rendu/unites.js';
 import { basculerSon, sonCoupe } from '../core/sons.js';
 import { message } from './messages.js';
@@ -29,11 +30,13 @@ export function initHud() {
     vieIa: id('vieIa'), vieIaTxt: id('vieIaTxt'),
     ageNom: id('ageNom'), xpBarre: id('xpBarre'), xpTxt: id('xpTxt'),
     unites: id('unites'), file: id('file'),
-    btRevenu: id('btRevenu'), btEvoluer: id('btEvoluer'), btSpecial: id('btSpecial'),
+    btRevenu: id('btRevenu'), btTourelle: id('btTourelle'),
+    btEvoluer: id('btEvoluer'), btSpecial: id('btSpecial'),
     btPause: id('btPause'), btSon: id('btSon'),
   });
 
   el.btRevenu.addEventListener('click', () => ameliorerRevenu(etat.camps.joueur));
+  el.btTourelle.addEventListener('click', () => acheterTourelle(etat.camps.joueur));
   el.btEvoluer.addEventListener('click', () => evoluer(etat.camps.joueur));
   el.btSpecial.addEventListener('click', () => lancerSpecial(etat.camps.joueur));
   el.btSon.addEventListener('click', () => {
@@ -151,6 +154,7 @@ export function majHud() {
   }
 
   majBoutonRevenu(j);
+  majBoutonTourelle(j);
   majBoutonEvoluer(j, requis);
   majBoutonSpecial(j);
   majFile(j);
@@ -168,6 +172,27 @@ function majBoutonRevenu(j) {
     + '<small>' + t('bouton.revenuNiv', { n: j.revenuNiveau + 1 }) + '</small>';
   el.btRevenu.disabled = max || j.or < prix;
   el.btRevenu.title = t('bouton.revenu') + ' : +' + R.revenuPas.toFixed(2) + '/s';
+}
+
+function majBoutonTourelle(j) {
+  const def = AGES[j.age].tourelle;
+  const prix = coutTourelle(j);
+  const posees = j.tourelles.filter(Boolean).length;
+  const misAJour = posees >= R.tourellesMax && prix !== Infinity;
+  el.btTourelle.innerHTML =
+    '<span class="touche">T</span>'
+    + '<span class="icone">♜</span>'
+    + '<b>' + t(misAJour ? 'bouton.ameliorer' : 'bouton.tourelle') + '</b>'
+    + '<span class="prix">' + (prix === Infinity ? t('bouton.max') : prix) + '</span>'
+    + '<small>' + posees + ' / ' + R.tourellesMax + '</small>';
+  el.btTourelle.disabled = prix === Infinity || j.or < prix;
+  el.btTourelle.title = nomDe(def)
+    + '\n' + t('stat.degats') + ' : ' + def.degats
+    + '\n' + t('stat.portee') + ' : ' + def.portee
+    + '\n' + t('stat.cadence') + ' : ' + def.cadence + ' s'
+    + (posees < R.tourellesMax
+        ? '\n' + t('stat.emplacement', { n: posees + 1, max: R.tourellesMax })
+        : '');
 }
 
 function majBoutonEvoluer(j, requis) {

@@ -6,15 +6,15 @@
 
 import { R } from '../data/reglages.js';
 import { AGES } from '../data/ages.js';
-import { etat } from '../systems/etat.js';
+import { etat, positionTourelle } from '../systems/etat.js';
 import { cheminArrondi, jauge, texteContour } from '../core/style.js';
 import { dessinerUnite, COULEUR_CAMP, assombrir, eclaircir } from './unites.js';
 
 export function dessinerScene(ctx) {
   const age = AGES[etat.camps.joueur ? etat.camps.joueur.age : 0];
   fond(ctx, age);
-  if (etat.camps.ennemi) dessinerChateau(ctx, etat.camps.ennemi);
-  if (etat.camps.joueur) dessinerChateau(ctx, etat.camps.joueur);
+  if (etat.camps.ennemi) { dessinerChateau(ctx, etat.camps.ennemi); dessinerTourelles(ctx, etat.camps.ennemi); }
+  if (etat.camps.joueur) { dessinerChateau(ctx, etat.camps.joueur); dessinerTourelles(ctx, etat.camps.joueur); }
   troupes(ctx);
   projectiles(ctx);
   effets(ctx);
@@ -199,6 +199,101 @@ function dessinerChateau(ctx, camp) {
   ctx.closePath(); ctx.fill();
 
   ctx.restore();
+}
+
+// ------------------------------------------------------------
+//  Les tourelles, posées sur le haut du château
+// ------------------------------------------------------------
+
+function dessinerTourelles(ctx, camp) {
+  const tremble = camp.secousse > 0 ? Math.sin(etat.horloge * 55) * camp.secousse * 4 : 0;
+  camp.tourelles.forEach((t, i) => {
+    if (!t) return;
+    const pos = positionTourelle(camp, i);
+    ctx.save();
+    ctx.translate(pos.x + tremble, pos.y);
+    ctx.scale(camp.sens, 1);          // la tourelle regarde vers le terrain
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    dessinerTourelle(ctx, t, COULEUR_CAMP[camp.id]);
+    ctx.restore();
+  });
+}
+
+// Exportée pour la planche de test (outils/test-unites.html).
+export function dessinerTourelle(ctx, t, couleurCamp) {
+  const pierre = AGES[t.age].pierre;
+  // Recul : 1 juste après le tir, 0 au repos.
+  const duree = Math.min(0.35, t.def.cadence * 0.6);
+  const recul = duree > 0 ? Math.max(0, t.anim / duree) : 0;
+
+  // Socle crénelé, avec le bandeau du camp
+  ctx.fillStyle = assombrir(pierre, 0.9);
+  cheminArrondi(ctx, -21, -13, 42, 15, 4); ctx.fill();
+  ctx.fillStyle = couleurCamp;
+  cheminArrondi(ctx, -21, -5, 42, 5, 2); ctx.fill();
+  ctx.fillStyle = pierre;
+  for (let i = 0; i < 3; i++) { cheminArrondi(ctx, -20 + i * 14, -18, 10, 7, 2); ctx.fill(); }
+
+  switch (t.def.forme) {
+    case 'bras': {           // lanceur de rochers
+      ctx.save();
+      ctx.translate(-4, -18);
+      ctx.rotate(-0.95 + recul * 1.25);
+      ctx.strokeStyle = '#7d5a34'; ctx.lineWidth = 6;
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(30, 0); ctx.stroke();
+      ctx.fillStyle = '#8d8577';
+      ctx.beginPath(); ctx.arc(33, 0, 7, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+      break;
+    }
+    case 'baliste': {
+      ctx.strokeStyle = '#6b5138'; ctx.lineWidth = 6;
+      ctx.beginPath(); ctx.moveTo(-14, -22); ctx.lineTo(22 - recul * 7, -22); ctx.stroke();
+      ctx.strokeStyle = '#b9bfc6'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(8, -36); ctx.lineTo(8, -8); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(8, -36); ctx.lineTo(-6 - recul * 8, -22); ctx.lineTo(8, -8);
+      ctx.stroke();
+      break;
+    }
+    case 'trebuchet': {
+      ctx.strokeStyle = '#6b5138'; ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.moveTo(-12, -14); ctx.lineTo(0, -34); ctx.lineTo(12, -14); ctx.stroke();
+      ctx.save();
+      ctx.translate(0, -34);
+      ctx.rotate(-1.25 + recul * 1.6);
+      ctx.strokeStyle = '#7d5a34'; ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.moveTo(-14, 0); ctx.lineTo(30, 0); ctx.stroke();
+      ctx.fillStyle = '#5a4a33';
+      cheminArrondi(ctx, -22, -6, 12, 12, 3); ctx.fill();
+      ctx.restore();
+      break;
+    }
+    case 'mitrailleuse': {
+      ctx.fillStyle = '#39422f';
+      cheminArrondi(ctx, -12, -30, 24, 16, 5); ctx.fill();
+      ctx.fillStyle = '#2c3325';
+      cheminArrondi(ctx, 8 - recul * 5, -25, 26, 7, 3); ctx.fill();
+      if (recul > 0.4) {
+        ctx.fillStyle = 'rgba(255,214,120,' + (recul - 0.3) + ')';
+        ctx.beginPath(); ctx.arc(36, -21.5, 8, 0, Math.PI * 2); ctx.fill();
+      }
+      break;
+    }
+    default: {               // canon à plasma
+      ctx.fillStyle = '#3b3552';
+      cheminArrondi(ctx, -14, -34, 28, 20, 7); ctx.fill();
+      ctx.fillStyle = '#4a4470';
+      cheminArrondi(ctx, 6 - recul * 6, -29, 30, 10, 4); ctx.fill();
+      ctx.fillStyle = '#8ee6ff';
+      ctx.shadowColor = '#8ee6ff'; ctx.shadowBlur = 16;
+      ctx.beginPath(); ctx.arc(38, -24, 5 + recul * 6, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+      break;
+    }
+  }
 }
 
 // ------------------------------------------------------------

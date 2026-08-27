@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<title>Centurys — planche des troupes</title>
+<title>Centurys — planche des troupes et des tourelles</title>
 <style>
   body{margin:0;background:#1a1712;color:#f6ecd8;
        font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;}
@@ -16,18 +16,19 @@
 </style>
 </head>
 <body>
-<h1>Planche des troupes</h1>
-<p>Toutes les unités du jeu, dans les deux camps. Sert à vérifier une silhouette
-   sans avoir à jouer une partie entière.</p>
+<h1>Planche des troupes et des tourelles</h1>
+<p>Toutes les troupes et toutes les tourelles du jeu, dans les deux camps.
+   Sert à vérifier une silhouette sans avoir à jouer une partie entière.</p>
 <div class="barre">
   <button id="btAnim" class="actif">Marche / arrêt</button>
   <button id="btAttaque">Animer l'attaque</button>
   <span id="etat"></span>
 </div>
-<canvas id="planche" width="1500" height="1200"></canvas>
+<canvas id="planche" width="1500" height="1420"></canvas>
 <script type="module">
 import { AGES } from '../jeu/data/ages.js';
-import { dessinerUnite } from '../jeu/rendu/unites.js';
+import { dessinerUnite, COULEUR_CAMP } from '../jeu/rendu/unites.js';
+import { dessinerTourelle } from '../jeu/rendu/scene.js';
 import { texteContour } from '../jeu/core/style.js';
 
 const cv = document.getElementById('planche');
@@ -65,6 +66,30 @@ function boucle() {
                    x + 95, yLigne + 42, 12, '#c8bda6');
     });
   });
+
+  // Dernière ligne : les tourelles, une par âge
+  const yT = 170 + AGES.length * 222 + 20;
+  ctx.fillStyle = 'rgba(255,255,255,.05)';
+  ctx.fillRect(0, yT - 130, cv.width, 190);
+  texteContour(ctx, 'Tourelles de château  /  Castle turrets', 16, yT - 112, 17, '#f4cb63', 'left');
+  AGES.forEach((age, ia) => {
+    const def = age.tourelle;
+    const duree = Math.min(0.35, def.cadence * 0.6);
+    const faux = { def, age: ia, anim: attaque ? (Math.sin(t * 2 + ia) * 0.5 + 0.5) * duree : 0 };
+    const x = 150 + ia * 280;
+    for (const [camp, dx] of [['joueur', 0], ['ennemi', 130]]) {
+      ctx.save();
+      ctx.translate(x + dx, yT);
+      ctx.scale(camp === 'joueur' ? 1 : -1, 1);
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      dessinerTourelle(ctx, faux, COULEUR_CAMP[camp]);
+      ctx.restore();
+    }
+    texteContour(ctx, def.nom.fr, x + 65, yT + 28, 14, '#f6ecd8');
+    texteContour(ctx, def.cout + ' or · ' + def.degats + ' dg · portée ' + def.portee,
+                 x + 65, yT + 46, 12, '#c8bda6');
+  });
+
   requestAnimationFrame(boucle);
 }
 boucle();

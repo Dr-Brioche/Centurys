@@ -33,6 +33,7 @@ export function creerCamp(id, options = {}) {
     pv: R.pvChateau,
     pvMax: R.pvChateau,
     file: [],                                  // [{ def, restant, total }]
+    tourelles: new Array(R.tourellesMax).fill(null),  // [{ def, age, cd, anim } | null]
     specialRecharge: 0,
     bonusRevenu: options.bonusRevenu || 1,
     agressivite: options.agressivite || 1,
@@ -40,6 +41,16 @@ export function creerCamp(id, options = {}) {
     tues: 0,
     perdues: 0,
     secousse: 0,                               // le château tremble quand il prend un coup
+  };
+}
+
+// Position d'un emplacement de tourelle : posé sur le haut du MUR, pas sur le
+// toit — sinon la tourelle s'emmêle avec la décoration propre à chaque âge.
+export function positionTourelle(camp, i) {
+  const ecarts = [0.33, 0.05, -0.23];
+  return {
+    x: camp.x + camp.sens * (ecarts[i] || 0) * R.chateauLargeur,
+    y: R.solY - R.chateauHauteur + 20,
   };
 }
 

@@ -27,6 +27,12 @@ export const AGES = [
     collines: ['#7f9a5a', '#94ac6b'],
     sol: '#77913f',
     pierre: '#8d8577',
+    tourelle: {
+      id: 'lanceur-rochers',
+      nom: { fr: "Lanceur de rochers", en: "Rock chucker" },
+      cout: 130, degats: 15, portee: 240, cadence: 1.6,
+      projectile: 'rocher', arc: true, forme: 'bras',
+    },
     special: {
       nom: { fr: "Pluie de météores", en: "Meteor shower" },
       degats: 70, recharge: 50, effet: 'meteore',
@@ -62,6 +68,12 @@ export const AGES = [
     collines: ['#8a935a', '#a3a874'],
     sol: '#a8925c',
     pierre: '#cbbb92',
+    tourelle: {
+      id: 'baliste',
+      nom: { fr: "Baliste", en: "Ballista" },
+      cout: 300, degats: 36, portee: 275, cadence: 1.5,
+      projectile: 'carreau', arc: false, forme: 'baliste',
+    },
     special: {
       nom: { fr: "Volée de javelots", en: "Javelin volley" },
       degats: 150, recharge: 50, effet: 'javelot',
@@ -98,6 +110,12 @@ export const AGES = [
     collines: ['#5f7248', '#71875a'],
     sol: '#6d7a4a',
     pierre: '#9aa0a6',
+    tourelle: {
+      id: 'trebuchet',
+      nom: { fr: "Trébuchet", en: "Trebuchet" },
+      cout: 600, degats: 78, portee: 330, cadence: 2.1,
+      projectile: 'rocher', arc: true, aoe: 55, forme: 'trebuchet',
+    },
     special: {
       nom: { fr: "Pluie de flèches", en: "Arrow rain" },
       degats: 320, recharge: 50, effet: 'fleches',
@@ -135,6 +153,12 @@ export const AGES = [
     collines: ['#4d5645', '#5e6853'],
     sol: '#6a6558',
     pierre: '#8e8e8e',
+    tourelle: {
+      id: 'mitrailleuse',
+      nom: { fr: "Mitrailleuse", en: "Machine gun" },
+      cout: 1200, degats: 58, portee: 300, cadence: 0.5,
+      projectile: 'balle', arc: false, forme: 'mitrailleuse',
+    },
     special: {
       nom: { fr: "Frappe d'artillerie", en: "Artillery strike" },
       degats: 650, recharge: 50, effet: 'obus',
@@ -173,6 +197,12 @@ export const AGES = [
     collines: ['#2c2547', '#3b3260'],
     sol: '#3a3355',
     pierre: '#7c74a8',
+    tourelle: {
+      id: 'canon-plasma',
+      nom: { fr: "Canon à plasma", en: "Plasma cannon" },
+      cout: 2400, degats: 320, portee: 390, cadence: 1.4,
+      projectile: 'plasma', arc: true, aoe: 70, forme: 'plasma',
+    },
     special: {
       nom: { fr: "Frappe orbitale", en: "Orbital strike" },
       degats: 1400, recharge: 50, effet: 'orbital',

@@ -30,6 +30,7 @@ Tout se fait **à la souris OU au clavier**, sans exception.
 |---|---|
 | `1` `2` `3` | acheter la troupe correspondante |
 | `4` | améliorer le revenu |
+| `T` | construire ou améliorer une tourelle de château |
 | `E` | évoluer (changer d'âge) |
 | `A` | attaque spéciale |
 | `Retour arrière` | annuler le dernier entraînement (remboursé) |
@@ -43,6 +44,8 @@ Tout se fait **à la souris OU au clavier**, sans exception.
    rapporte aussi. L'or sert à acheter des troupes **et** à augmenter le revenu.
 2. Chaque troupe tuée donne de l'**expérience** ; assez d'expérience permet de
    passer à l'**âge suivant**, qui débloque trois troupes bien plus fortes.
+   L'or peut aussi acheter jusqu'à **trois tourelles** sur ton château : elles
+   tirent toutes seules sur ce qui s'approche.
 3. Le premier qui met le **château adverse** à zéro gagne.
 
 ## Comment c'est rangé

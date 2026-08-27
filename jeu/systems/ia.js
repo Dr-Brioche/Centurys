@@ -9,7 +9,8 @@
 import { R, coutRevenu } from '../data/reglages.js';
 import { AGES } from '../data/ages.js';
 import { etat } from './etat.js';
-import { acheterUnite, ameliorerRevenu, evoluer, peutEvoluer, lancerSpecial } from './combat.js';
+import { acheterUnite, ameliorerRevenu, evoluer, peutEvoluer, lancerSpecial,
+         acheterTourelle, coutTourelle } from './combat.js';
 
 export function majIA(dt) {
   const camp = etat.camps.ennemi;
@@ -46,7 +47,22 @@ export function majIA(dt) {
                         || (menace <= 1 && Math.random() < 0.6 / camp.agressivite));
   if (veutInvestir) { ameliorerRevenu(camp); return; }
 
-  // 4. Sinon, acheter une troupe.
+  // 4. Une tourelle : le meilleur or dépensé quand on encaisse des assauts.
+  const prixTourelle = coutTourelle(camp);
+  const posees = camp.tourelles.filter(Boolean).length;
+  if (prixTourelle !== Infinity && camp.or >= prixTourelle
+      && (posees === 0                    // la première tourelle, toujours
+          || enDanger                     // on se fait pousser : il faut du mur
+          || (menace >= 2 && camp.or >= prixTourelle * 1.3)   // ça pousse en face
+          || camp.or >= prixTourelle * 1.8)) {  // assez riche pour ça ET des troupes
+    acheterTourelle(camp);
+    return;
+  }
+  // Sans tourelle, mieux vaut mettre de côté que d'aligner une troupe de plus.
+  if (posees === 0 && prixTourelle !== Infinity && !enDanger
+      && camp.or >= prixTourelle * 0.6) return;
+
+  // 5. Sinon, acheter une troupe.
   const index = choisirUnite(camp, menace, nos, enDanger);
   if (index >= 0) acheterUnite(camp, index);
 }

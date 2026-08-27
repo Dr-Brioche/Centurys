@@ -26,6 +26,10 @@ file d'entraînement) sert à rythmer cet arbitrage.
 | **Expérience** | uniquement en tuant des troupes | changer d'âge |
 | **Points de vie du château** | 1600 au départ, +12 % à chaque évolution | c'est la barre de défaite |
 
+L'or a **trois** débouchés qui se disputent la même bourse : des troupes
+maintenant, du revenu pour plus tard, des tourelles pour tenir. C'est ce
+triangle qui fait la partie.
+
 L'expérience ne s'achète pas : **il faut se battre pour progresser**. Un
 joueur qui se contente d'accumuler de l'or n'évoluera jamais.
 
@@ -63,7 +67,31 @@ Son rôle : **casser les blocages**. Sans elle, deux armées équivalentes
 s'annulent au milieu du terrain et la partie s'enlise. Elle ne touche jamais
 un château : ce n'est pas une arme de finition, c'est un tournevis.
 
-## 5. La file d'entraînement
+## 5. Les tourelles de château
+
+Chaque château a **trois emplacements**, vides au départ. Une tourelle :
+
+- se construit avec de l'or, à l'âge où on se trouve (une tourelle par âge :
+  lanceur de rochers, baliste, trébuchet, mitrailleuse, canon à plasma) ;
+- **tire toute seule** sur la troupe adverse la plus proche à sa portée ;
+- **ne vise jamais un château** : c'est une arme de défense, pas de finition ;
+- **ne peut pas être détruite** : la barre de vie du château est la seule
+  barre de défaite, et le joueur n'a donc rien à réparer.
+
+Le premier emplacement coûte le prix de base, le deuxième ×1,5, le troisième
+×2,1 : chaque tourelle supplémentaire vaut moins que la précédente. Quand les
+trois emplacements sont pris, le même bouton **remplace automatiquement la
+tourelle la plus dépassée** par une du modèle courant, pour 80 % du prix — il
+n'y a jamais de choix à faire entre trois emplacements identiques, donc jamais
+de clic inutile à demander au joueur.
+
+Leur rôle dans la boucle : c'est le **troisième usage de l'or**, à côté des
+troupes et du revenu. Une tourelle ne gagne pas la partie, elle rend une
+poussée adverse beaucoup plus chère — et elle transforme une défaite qui
+s'annonce en contre-attaque, parce que chaque troupe qu'elle tue rapporte de
+l'or et de l'expérience.
+
+## 6. La file d'entraînement
 
 Une troupe achetée n'apparaît pas tout de suite : elle rejoint une file (5
 places maximum) et sort après son temps d'entraînement (1,3 s pour un homme
@@ -73,7 +101,7 @@ Retour arrière, annule et rembourse.
 Son rôle : empêcher d'acheter dix troupes d'un coup et de tout gagner sur un
 seul pic d'or. Elle transforme l'or en **flux** plutôt qu'en **stock**.
 
-## 6. Le combat, en détail
+## 7. Le combat, en détail
 
 - Toutes les troupes marchent sur **une seule ligne**, vers l'adversaire.
 - Une troupe **ne traverse jamais un allié** : elle fait la queue derrière.
@@ -87,7 +115,7 @@ seul pic d'or. Elle transforme l'or en **flux** plutôt qu'en **stock**.
   expérience. Deux armées qui s'annulent ne s'appauvrissent donc pas
   complètement : la partie continue d'avancer.
 
-## 7. L'adversaire
+## 8. L'adversaire
 
 Un joueur artificiel qui suit les mêmes règles que le joueur — il ne triche
 pas. Toutes les 0,7 seconde il prend **une** décision, dans cet ordre :
@@ -95,13 +123,16 @@ pas. Toutes les 0,7 seconde il prend **une** décision, dans cet ordre :
 1. évoluer si c'est possible ;
 2. lancer l'attaque spéciale s'il y a assez de cibles, ou s'il est en danger ;
 3. investir dans son revenu si le terrain n'est pas menaçant ;
-4. sinon acheter une troupe (la plus lourde qu'il peut se payer quand il est
+4. construire une tourelle — toujours la première (il met même de côté pour
+   elle plutôt que d'aligner une troupe de plus), les suivantes seulement
+   quand ça pousse en face ou qu'il est riche ;
+5. sinon acheter une troupe (la plus lourde qu'il peut se payer quand il est
    riche, la plus rapide à sortir quand il est débordé).
 
 La difficulté ne change **que** son revenu et son agressivité :
 facile ×0,75 — normal ×1 — difficile ×1,35.
 
-## 8. Contraintes permanentes
+## 9. Contraintes permanentes
 
 - **Souris ET clavier** pour toute action, sans exception (ça prépare la manette).
 - **Bilingue FR/EN** en permanence : une fonctionnalité livrée dans une seule
@@ -113,7 +144,7 @@ facile ×0,75 — normal ×1 — difficile ×1,35.
 - Le jeu est dessiné en **1280 × 720** puis mis à l'échelle d'un bloc : canvas
   et interface HTML bougent ensemble, rien ne se décale jamais.
 
-## 9. Où sont les chiffres
+## 10. Où sont les chiffres
 
 | Quoi | Où |
 |---|---|
@@ -121,10 +152,10 @@ facile ×0,75 — normal ×1 — difficile ×1,35.
 | Les 5 âges, les 15 troupes, les attaques spéciales | `jeu/data/ages.js` |
 | Tous les textes affichés (FR + EN) | `jeu/data/textes.js` |
 
-## 10. Pistes pour la suite (pas encore faites)
+## 11. Pistes pour la suite (pas encore faites)
 
-- **Tourelles de château** : un ou deux emplacements achetables qui tirent
-  tout seuls — c'est la principale mécanique du genre qui manque encore.
+- **Vendre une tourelle** pour récupérer une partie de l'or (utile quand on
+  a sur-investi en défense et qu'il faut basculer en attaque).
 - **Récompense de fin de partie** et progression entre les parties
   (débloquer une difficulté, un âge bonus, des statistiques).
 - Une **musique** et de vrais bruitages (aujourd'hui tout est synthétisé).

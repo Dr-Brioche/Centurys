@@ -88,7 +88,7 @@ canvas#jeu{position:absolute; inset:0; width:1280px; height:720px; display:block
   display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 14px;
   background:linear-gradient(rgba(10,8,6,0), rgba(10,8,6,.85) 38%);
 }
-#unites, #actions{display:flex; gap:9px; align-items:stretch;}
+#unites, #actions{display:flex; gap:8px; align-items:stretch;}
 button{
   font-family:inherit; color:var(--texte); cursor:pointer;
   background:var(--panneau); border:2px solid var(--bord); border-radius:var(--rayon);
@@ -110,7 +110,7 @@ button:disabled{cursor:not-allowed;}
 .unite:disabled .prix{color:#ff9b8b;}
 
 .action{
-  position:relative; width:118px; height:112px; padding:6px 6px 8px;
+  position:relative; width:112px; height:112px; padding:6px 6px 8px;
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
   transition:transform .08s ease, border-color .12s;
 }
@@ -225,6 +225,7 @@ button:disabled{cursor:not-allowed;}
       <div id="unites"></div>
       <div id="actions">
         <button id="btRevenu" class="action"></button>
+        <button id="btTourelle" class="action"></button>
         <button id="btEvoluer" class="action"></button>
         <button id="btSpecial" class="action"></button>
         <button id="btPause" class="mini" title="P">❚❚</button>

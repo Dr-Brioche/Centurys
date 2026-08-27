@@ -7,7 +7,7 @@
 
 import { R, coutRevenu, revenuDe } from '../data/reglages.js';
 import { AGES, xpPourEvoluer } from '../data/ages.js';
-import { etat, creerCamp, autre, bordChateau } from './etat.js';
+import { etat, creerCamp, autre, bordChateau, positionTourelle } from './etat.js';
 import { son } from '../core/sons.js';
 import { message } from '../ui/messages.js';
 import { nomDe } from './langue.js';
@@ -75,6 +75,46 @@ export function ameliorerRevenu(camp) {
   camp.or -= prix;
   camp.revenuNiveau++;
   if (camp.id === 'joueur') son('revenu');
+  return true;
+}
+
+// Index de la tourelle la plus dépassée (-1 si tout est déjà à l'âge du camp).
+export function tourelleADepasser(camp) {
+  let index = -1, plusVieille = camp.age;
+  camp.tourelles.forEach((t, i) => {
+    if (t && t.age < plusVieille) { plusVieille = t.age; index = i; }
+  });
+  return index;
+}
+
+// Prix de la prochaine tourelle : un nouvel emplacement, ou une mise à niveau.
+export function coutTourelle(camp) {
+  const def = AGES[camp.age].tourelle;
+  const posees = camp.tourelles.filter(Boolean).length;
+  if (posees < R.tourellesMax) return Math.round(def.cout * R.tourelleMult[posees]);
+  if (tourelleADepasser(camp) < 0) return Infinity;   // tout est à jour
+  return Math.round(def.cout * R.tourelleMiseAJour);
+}
+
+export function acheterTourelle(camp) {
+  const prix = coutTourelle(camp);
+  if (prix === Infinity) {
+    if (camp.id === 'joueur') { message('info.tourellesAJour', null, 'erreur'); son('erreur'); }
+    return false;
+  }
+  if (camp.or < prix) {
+    if (camp.id === 'joueur') { message('info.pasAssezOr', null, 'erreur'); son('erreur'); }
+    return false;
+  }
+  const def = AGES[camp.age].tourelle;
+  const libre = camp.tourelles.indexOf(null);
+  const place = (libre >= 0) ? libre : tourelleADepasser(camp);
+  camp.or -= prix;
+  camp.tourelles[place] = { def, age: camp.age, cd: def.cadence * 0.5, anim: 0 };
+  if (camp.id === 'joueur') {
+    son('revenu');
+    message(libre >= 0 ? 'info.tourelleOk' : 'info.tourelleMaj', { n: nomDe(def) }, 'bien');
+  }
   return true;
 }
 
@@ -146,6 +186,8 @@ function majCamp(camp, dt) {
   if (camp.specialRecharge > 0) camp.specialRecharge = Math.max(0, camp.specialRecharge - dt);
   if (camp.secousse > 0) camp.secousse = Math.max(0, camp.secousse - dt * 2.5);
 
+  majTourelles(camp, dt);
+
   const tete = camp.file[0];
   if (tete) {
     tete.restant -= dt;
@@ -153,6 +195,34 @@ function majCamp(camp, dt) {
       camp.file.shift();
       faireSortir(camp, tete.def);
     }
+  }
+}
+
+// Une tourelle vise la troupe adverse la plus proche à sa portée.
+// Elle ne tire jamais sur un château : c'est une arme de défense.
+function majTourelles(camp, dt) {
+  for (let i = 0; i < camp.tourelles.length; i++) {
+    const t = camp.tourelles[i];
+    if (!t) continue;
+    if (t.anim > 0) t.anim = Math.max(0, t.anim - dt);
+    if (t.cd > 0) { t.cd -= dt; continue; }
+
+    const pos = positionTourelle(camp, i);
+    let cible = null, meilleure = Infinity;
+    for (const u of etat.unites) {
+      if (u.mort || u.camp === camp.id) continue;
+      const d = Math.abs(u.x - pos.x);
+      if (d <= t.def.portee && d < meilleure) { meilleure = d; cible = u; }
+    }
+    if (!cible) continue;
+
+    creerProjectile(pos, cible, null, {
+      type: t.def.projectile, degats: t.def.degats, aoe: t.def.aoe || 0,
+      camp: camp.id, sens: camp.sens, arc: t.def.arc,
+    });
+    t.cd = t.def.cadence;
+    t.anim = Math.min(0.35, t.def.cadence * 0.6);
+    son('tir');
   }
 }
 
@@ -258,26 +328,31 @@ function attaquer(u, cible, chateau) {
 function tirer(u, cible, chateau) {
   const arc = (u.def.projectile === 'rocher' || u.def.projectile === 'obus'
             || u.def.projectile === 'pierre' || u.def.projectile === 'plasma');
-  const depart = {
-    x: u.x + u.sens * (u.def.largeur / 2 + 4),
-    y: R.solY - u.def.hauteur * 0.66,
-  };
+  creerProjectile(
+    { x: u.x + u.sens * (u.def.largeur / 2 + 4), y: R.solY - u.def.hauteur * 0.66 },
+    cible, chateau,
+    { type: u.def.projectile, degats: u.def.degats, aoe: u.def.aoe || 0,
+      camp: u.camp, sens: u.sens, arc });
+}
+
+// Fabrique commune : troupes ET tourelles tirent par ici.
+function creerProjectile(depart, cible, chateau, o) {
   const arrivee = chateau
-    ? { x: bordChateau(chateau) - u.sens * 6, y: R.solY - R.chateauHauteur * 0.45 }
+    ? { x: bordChateau(chateau) - o.sens * 6, y: R.solY - R.chateauHauteur * 0.45 }
     : { x: cible.x, y: R.solY - cible.def.hauteur * 0.5 };
   const dx = arrivee.x - depart.x, dy = arrivee.y - depart.y;
   const distance = Math.hypot(dx, dy);
-  const vitesse = arc ? 430 : 760;
+  const vitesse = o.arc ? 430 : 760;
   etat.projectiles.push({
-    type: u.def.projectile,
-    camp: u.camp,
-    sens: u.sens,
+    type: o.type,
+    camp: o.camp,
+    sens: o.sens,
     x: depart.x, y: depart.y,
     x0: depart.x, y0: depart.y,
     cible, chateau,
-    degats: u.def.degats,
-    aoe: u.def.aoe || 0,
-    arc,
+    degats: o.degats,
+    aoe: o.aoe || 0,
+    arc: !!o.arc,
     t: 0,
     duree: Math.max(0.08, distance / vitesse),
     angle: Math.atan2(dy, dx),

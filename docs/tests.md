@@ -34,6 +34,7 @@ etat.camps.joueur.or = 99999;          // riche
 etat.camps.joueur.xp = 99999;          // évolution immédiate (touche E)
 etat.camps.joueur.age = 4;             // directement à l'âge futuriste
 etat.camps.joueur.specialRecharge = 0; // attaque spéciale prête (touche A)
+etat.camps.joueur.tourelles.fill(null); // vider les emplacements de tourelles
 etat.camps.ennemi.pv = 40;             // fin de partie en quelques coups
 etat.camps.ennemi.bonusRevenu = 0;     // l'adversaire n'achète plus rien
 etat.unites.length = 0;                // vider le terrain
@@ -62,5 +63,9 @@ section « L'adversaire » de `concept.md` pour la logique de décision.
 - **Le camp se reconnaît à la couleur du bandeau et de l'ombre au sol**
   (bleu = joueur, rouge = ennemi). Une nouvelle silhouette doit recevoir sa
   pièce aux couleurs du camp, sinon on ne distingue plus les deux armées.
+- **Une tourelle ne tire pas sur un château** : pour la voir tirer il faut une
+  troupe adverse à moins de sa portée du château (240 px à l'âge de pierre),
+  donc bien plus près que le milieu du terrain. Vider le terrain et faire
+  sortir une seule troupe adverse est le moyen le plus rapide.
 - **Vérifier les deux langues** avant de clore une tâche : un libellé anglais
   plus long peut déborder d'un bouton.
