@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Centurys — banc d'essai d'équilibrage</title>
+<style>
+  body{margin:0;padding:18px;background:#1a1712;color:#f6ecd8;
+       font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;}
+  h1{font-size:20px;margin:0 0 4px;color:#f4cb63;}
+  p{font-size:13px;opacity:.8;margin:6px 0 14px;max-width:820px;line-height:1.55;}
+  button{font-family:inherit;color:inherit;background:#2b2620;border:2px solid #7a6236;
+         border-radius:8px;padding:9px 16px;cursor:pointer;font-size:14px;margin-right:8px;}
+  button:hover{border-color:#f4cb63;}
+  button:disabled{opacity:.5;cursor:progress;}
+  table{border-collapse:collapse;margin-top:14px;font-size:13px;}
+  th,td{border:1px solid #4a4034;padding:5px 10px;text-align:right;}
+  th{background:#2b2620;color:#f4cb63;}
+  td:first-child,th:first-child{text-align:left;}
+  .bien{color:#9ee08a;} .mal{color:#ff8a72;}
+  #verdict{margin-top:14px;font-size:15px;font-weight:bold;}
+</style>
+</head>
+<body>
+<h1>Banc d'essai d'équilibrage</h1>
+<p><b>Bataille en miroir</b> : deux armées rigoureusement symétriques autour du centre
+du terrain. La bonne réponse est <b>zéro survivant des deux côtés</b>. Si un camp
+survit, le moteur avantage un côté — et comme le joueur est toujours à gauche,
+le jeu est injuste. À relancer après <b>toute</b> modification du combat.</p>
+<p><b>Simuler des parties</b> : l'adversaire joue des deux côtés, en accéléré. On y lit
+la durée des parties, les âges atteints et la répartition des victoires (elle doit
+tourner autour de moitié-moitié).</p>
+
+<button id="btMiroir">Bataille en miroir</button>
+<button id="btParties">Simuler 10 parties</button>
+<div id="verdict"></div>
+<div id="sortie"></div>
+
+<script type="module">
+import { etat, bordChateau } from '../jeu/systems/etat.js';
+import * as C from '../jeu/systems/combat.js';
+import { majIA } from '../jeu/systems/ia.js';
+import { AGES } from '../jeu/data/ages.js';
+import { R } from '../jeu/data/reglages.js';
+
+const sortie = document.getElementById('sortie');
+const verdict = document.getElementById('verdict');
+
+function tableau(lignes) {
+  if (!lignes.length) return '';
+  const cles = Object.keys(lignes[0]);
+  return '<table><tr>' + cles.map(c => '<th>' + c + '</th>').join('') + '</tr>'
+    + lignes.map(l => '<tr>' + cles.map(c => '<td>' + l[c] + '</td>').join('') + '</tr>').join('')
+    + '</table>';
+}
+
+// ---------------------------------------------------------------- miroir
+function bataille(ids) {
+  C.demarrerPartie('normal');
+  etat.unites.length = 0;
+  const poser = (camp, sens) => ids.forEach((id, i) => {
+    const def = AGES[0].unites[id];
+    const x = camp === 'joueur' ? R.chateauJoueurX + 80 + i * 45
+                                : R.chateauEnnemiX - 80 - i * 45;
+    etat.unites.push({ camp, sens, def, pv: def.pv, pvMax: def.pv, x, xImage: x, cd: 0,
+                       marche: true, phase: 0, animAttaque: 0, flash: 0, mort: false, fade: 0 });
+  });
+  poser('joueur', +1);
+  poser('ennemi', -1);
+  let t = 0;
+  while (t < 240) {
+    C.majJeu(0.05); t += 0.05;
+    const g = etat.unites.filter(u => !u.mort && u.camp === 'joueur').length;
+    const d = etat.unites.filter(u => !u.mort && u.camp === 'ennemi').length;
+    if (!g || !d) return { gauche: g, droite: d, secondes: +t.toFixed(1) };
+  }
+  return { gauche: -1, droite: -1, secondes: 240 };
+}
+
+document.getElementById('btMiroir').addEventListener('click', e => {
+  e.target.disabled = true;
+  const essais = {
+    'mêlée × 4': [0,0,0,0],
+    'mêlée × 6': [0,0,0,0,0,0],
+    'mêlée + tireurs': [0,0,1,1],
+    'tireurs × 4': [1,1,1,1],
+    'lourdes × 2': [2,2],
+    'les trois rôles': [0,1,2,0,1,2],
+  };
+  const lignes = [];
+  let juste = true;
+  for (const [nom, ids] of Object.entries(essais)) {
+    const r = bataille(ids);
+    const ok = r.gauche === 0 && r.droite === 0;
+    if (!ok) juste = false;
+    lignes.push({ 'bataille': nom, 'survivants gauche': r.gauche, 'survivants droite': r.droite,
+                  'secondes': r.secondes,
+                  'verdict': ok ? '<span class="bien">symétrique</span>'
+                                : '<span class="mal">DÉSÉQUILIBRÉ</span>' });
+  }
+  sortie.innerHTML = tableau(lignes);
+  verdict.innerHTML = juste
+    ? '<span class="bien">✔ Le moteur est symétrique : aucun camp n\'est avantagé.</span>'
+    : '<span class="mal">✘ Un camp survit : le moteur avantage un côté, à corriger avant tout le reste.</span>';
+  e.target.disabled = false;
+});
+
+// ---------------------------------------------------------------- parties
+document.getElementById('btParties').addEventListener('click', e => {
+  e.target.disabled = true;
+  verdict.textContent = 'Simulation en cours…';
+  setTimeout(() => {
+    const lignes = [];
+    let g = 0, d = 0, nul = 0, duree = 0;
+    for (let p = 0; p < 10; p++) {
+      C.demarrerPartie('normal');
+      while (!etat.fin && etat.temps < 60 * 30) {
+        C.majJeu(0.05);
+        majIA(0.05, etat.camps.joueur);
+        majIA(0.05, etat.camps.ennemi);
+      }
+      const j = etat.camps.joueur, n = etat.camps.ennemi;
+      duree += etat.temps;
+      if (!etat.fin) nul++; else if (etat.fin.victoire) g++; else d++;
+      lignes.push({
+        'partie': p + 1,
+        'minutes': (etat.temps / 60).toFixed(1),
+        'gagnant': etat.fin ? (etat.fin.victoire ? 'gauche' : 'droite') : 'match nul',
+        'âge gauche': j.age + 1, 'âge droite': n.age + 1,
+        'revenu G/D': j.revenuNiveau + ' / ' + n.revenuNiveau,
+        'tourelles G/D': j.tourelles.filter(Boolean).length + ' / ' + n.tourelles.filter(Boolean).length,
+        'spéciales G/D': j.specialsLances + ' / ' + n.specialsLances,
+        'tués G/D': j.tues + ' / ' + n.tues,
+      });
+    }
+    sortie.innerHTML = tableau(lignes);
+    verdict.innerHTML = 'Durée moyenne : <b>' + (duree / 10 / 60).toFixed(1) + ' min</b> · '
+      + 'victoires gauche <b>' + g + '</b> / droite <b>' + d + '</b>'
+      + (nul ? ' · <span class="mal">' + nul + ' match(s) nul(s)</span>' : '')
+      + (Math.abs(g - d) <= 4 && !nul
+          ? ' — <span class="bien">réparti</span>'
+          : ' — <span class="mal">à surveiller</span>');
+    e.target.disabled = false;
+  }, 30);
+});
+</script>
+</body>
+</html>

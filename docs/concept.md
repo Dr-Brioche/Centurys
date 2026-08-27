@@ -22,26 +22,35 @@ file d'entraînement) sert à rythmer cet arbitrage.
 
 | Ressource | D'où elle vient | À quoi elle sert |
 |---|---|---|
-| **Or** | revenu continu + butin des troupes tuées | acheter des troupes, monter le revenu |
-| **Expérience** | uniquement en tuant des troupes | changer d'âge |
-| **Points de vie du château** | 1600 au départ, +12 % à chaque évolution | c'est la barre de défaite |
+| **Or** | revenu continu + butin des troupes tuées | troupes, revenu, tourelles, **changement d'âge**, **attaque spéciale** |
+| **Expérience** | uniquement en tuant des troupes | changer d'âge (en plus de l'or) |
+| **Points de vie du château** | 2200 au départ, +12 % à chaque évolution | c'est la barre de défaite |
 
-L'or a **trois** débouchés qui se disputent la même bourse : des troupes
-maintenant, du revenu pour plus tard, des tourelles pour tenir. C'est ce
-triangle qui fait la partie.
+**Tout se paie avec la même bourse** : des troupes maintenant, du revenu pour
+plus tard, des tourelles pour tenir, le changement d'âge, l'attaque spéciale.
+C'est cette bourse unique qui fait la partie — chaque pièce dépensée quelque
+part est une pièce qui manque ailleurs.
+
+L'expérience, elle, ne s'achète pas : **il faut se battre pour progresser**.
+Un joueur qui se contenterait d'empiler de l'or n'évoluerait jamais.
 
 L'expérience ne s'achète pas : **il faut se battre pour progresser**. Un
 joueur qui se contente d'accumuler de l'or n'évoluera jamais.
 
 ## 3. Les cinq âges
 
-| # | Âge | XP à payer | Corps à corps | Distance | Lourde |
+| # | Âge | Prix d'entrée | Corps à corps | Distance | Lourde |
 |---|---|---|---|---|---|
 | 1 | Âge de pierre | — | Homme au gourdin | Lanceur de pierres | Mastodonte |
-| 2 | Antiquité | 280 | Légionnaire | Archer | Char de guerre |
-| 3 | Âge médiéval | 850 | Chevalier | Arbalétrier | Catapulte |
-| 4 | Âge moderne | 2 200 | Fusilier | Tireur d'élite | Char d'assaut |
-| 5 | Âge futuriste | 5 200 | Cyborg | Fantassin laser | Méca de siège |
+| 2 | Antiquité | 250 XP + 170 or | Légionnaire | Archer | Char de guerre |
+| 3 | Âge médiéval | 650 XP + 430 or | Chevalier | Arbalétrier | Catapulte |
+| 4 | Âge moderne | 1 300 XP + 950 or | Fusilier | Tireur d'élite | Char d'assaut |
+| 5 | Âge futuriste | 2 400 XP + 2 100 or | Cyborg | Fantassin laser | Méca de siège |
+
+Changer d'âge coûte **les deux** : de l'expérience (il faut avoir combattu) et
+de l'or (il faut avoir économisé). C'est ce qui crée le meilleur arbitrage du
+jeu — « j'évolue maintenant, ou je m'achète le char que je peux enfin me
+payer ? » — et ce qui empêche de monter les cinq âges en restant passif.
 
 Chaque âge est environ **deux fois plus cher et deux fois plus fort** que le
 précédent. Les trois rôles sont volontairement toujours les mêmes, pour que
@@ -61,11 +70,14 @@ la progression doit **se voir**, pas seulement se lire dans un chiffre.
 
 Une par âge (pluie de météores, volée de javelots, pluie de flèches, frappe
 d'artillerie, frappe orbitale). Elle frappe **toutes les troupes adverses
-présentes sur le terrain**, gratuitement, avec 50 secondes de recharge.
+présentes sur le terrain**, coûte de l'**or** (120 à 2 000 selon l'âge) et se
+recharge en **25 secondes**.
 
-Son rôle : **casser les blocages**. Sans elle, deux armées équivalentes
-s'annulent au milieu du terrain et la partie s'enlise. Elle ne touche jamais
-un château : ce n'est pas une arme de finition, c'est un tournevis.
+Le vrai frein est le prix, pas l'attente : c'est un outil qu'on paie au moment
+où on en a besoin, pas un minuteur qu'on subit. Son rôle : **casser les
+blocages**. Sans elle, deux armées équivalentes s'annulent au milieu du terrain
+et la partie s'enlise. Elle ne touche jamais un château : ce n'est pas une arme
+de finition, c'est un tournevis.
 
 ## 5. Les tourelles de château
 
@@ -103,6 +115,14 @@ seul pic d'or. Elle transforme l'or en **flux** plutôt qu'en **stock**.
 
 ## 7. Le combat, en détail
 
+- **Tout le monde joue en même temps.** À chaque image, on fige d'abord la
+  position de toutes les troupes, puis chacune décide (qui je vise, suis-je à
+  portée) sur ces positions figées, et enfin tous les coups partent ensemble.
+  C'est une règle de **justice**, pas de confort : sans elle, la troupe traitée
+  en second voyait son adversaire déjà avancé, entrait à portée une image plus
+  tôt et frappait la première — et le camp de droite gagnait systématiquement,
+  même à armées rigoureusement égales. Toute modification du combat doit
+  préserver cette simultanéité (voir `docs/tests.md`, bataille en miroir).
 - Toutes les troupes marchent sur **une seule ligne**, vers l'adversaire.
 - Une troupe **ne traverse jamais un allié** : elle fait la queue derrière.
   C'est ce qui crée les « murs » de corps à corps derrière lesquels les
@@ -121,15 +141,51 @@ Un joueur artificiel qui suit les mêmes règles que le joueur — il ne triche
 pas. Toutes les 0,7 seconde il prend **une** décision, dans cet ordre :
 
 1. évoluer si c'est possible ;
-2. lancer l'attaque spéciale s'il y a assez de cibles, ou s'il est en danger ;
-3. investir dans son revenu si le terrain n'est pas menaçant ;
-4. construire une tourelle — toujours la première (il met même de côté pour
-   elle plutôt que d'aligner une troupe de plus), les suivantes seulement
-   quand ça pousse en face ou qu'il est riche ;
-5. sinon acheter une troupe (la plus lourde qu'il peut se payer quand il est
-   riche, la plus rapide à sortir quand il est débordé).
+2. lancer l'attaque spéciale s'il peut se la payer et qu'il y a assez de
+   cibles, ou s'il est en danger ;
+3. **économiser** s'il a l'expérience pour évoluer mais pas l'or — il ferme la
+   bourse jusqu'au changement d'âge, sauf si son château est menacé ;
+4. investir dans son revenu, puis dans une tourelle ;
+5. **préparer une vague** si la ligne est bloquée (voir plus bas) ;
+6. sinon acheter la troupe qui manque à son armée.
 
-La difficulté ne change **que** son revenu et son agressivité :
+### Il compose une armée, il n'empile pas des fantassins
+
+Chaque troupe porte un **rôle** (`role` dans `ages.js`) : 0 corps à corps,
+1 distance, 2 lourde. Avant d'acheter, l'adversaire regarde deux choses :
+de quoi est faite **son** armée (troupes vivantes **et** celles encore à
+l'entraînement), et de quoi est faite **celle d'en face**. Il vise alors une
+composition, et achète le rôle le plus en retard :
+
+| Ce qu'il voit en face | Ce qu'il vise (mêlée / distance / lourde) | Pourquoi |
+|---|---|---|
+| rien | 45 / 35 / 20 | il prépare une poussée |
+| surtout du corps à corps | 35 / 50 / 15 | ses tireurs les fauchent avant le contact |
+| beaucoup de tireurs | 45 / 25 / 30 | il faut du lourd pour encaisser et arriver au contact |
+| du lourd | 30 / 55 / 15 | des tireurs pour l'user à distance |
+| mélangé | 45 / 40 / 15 | un mur, des tireurs derrière, un gros de temps en temps |
+
+Comme les troupes font la queue sans se traverser, viser cette composition
+produit tout seul la formation classique : **des fantassins devant, des
+archers derrière**. Débordé, il oublie le plan et prend ce qui sort le plus
+vite. Le terrain saturé (14 troupes), il arrête d'acheter : une troupe de plus
+ferait la queue sans jamais taper, autant garder l'or.
+
+### Il attaque par vagues
+
+Deux armées équivalentes qui se touchent au milieu ne bougent plus, et chaque
+troupe envoyée seule meurt seule. Après une quinzaine de secondes de statu quo,
+l'adversaire **décroche** : il arrête de nourrir la mêlée, met de côté, puis
+lâche quatre troupes d'un coup. C'est ce qui débloque une partie — sans cette
+règle, deux adversaires identiques se neutralisaient pendant trente minutes.
+
+### Il a un tempérament
+
+À chaque partie il tire au sort un léger penchant (un peu plus de tireurs, un
+peu plus de gros) et une **patience** (la taille du paquet qu'il attend avant
+d'attaquer). Sans ça il rejouerait exactement la même partie à chaque fois.
+
+La difficulté ne change **que** son revenu et son appétit :
 facile ×0,75 — normal ×1 — difficile ×1,35.
 
 ## 9. Contraintes permanentes
@@ -139,6 +195,7 @@ facile ×0,75 — normal ×1 — difficile ×1,35.
   langue est une fonctionnalité non terminée.
 - **Zéro dépendance externe** : pas de serveur, pas de bibliothèque, pas de
   fichier image ou son. Le jeu doit rester emballable en `.exe` sans travail.
+- **Simultanéité du combat** : personne ne joue avant l'autre (voir § 7).
 - **Coins arrondis partout** pour l'interface (`--rayon` en CSS,
   `cheminArrondi` sur le canvas).
 - Le jeu est dessiné en **1280 × 720** puis mis à l'échelle d'un bloc : canvas

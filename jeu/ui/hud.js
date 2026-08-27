@@ -12,7 +12,7 @@ import { etat } from '../systems/etat.js';
 import { t, nomDe } from '../systems/langue.js';
 import { acheterUnite, ameliorerRevenu, evoluer, peutEvoluer, lancerSpecial,
          annulerDernier, acheterTourelle, coutTourelle,
-         tourelleADepasser } from '../systems/combat.js';
+         assezXpPourEvoluer, coutEvolution } from '../systems/combat.js';
 import { dessinerUnite } from '../rendu/unites.js';
 import { basculerSon, sonCoupe } from '../core/sons.js';
 import { message } from './messages.js';
@@ -195,32 +195,46 @@ function majBoutonTourelle(j) {
         : '');
 }
 
+// Changer d'âge coûte de l'or ET de l'expérience : le bouton affiche le prix
+// en or, et sous celui-ci l'expérience qu'il reste à gagner (ou le nom du
+// prochain âge quand l'expérience est déjà là).
 function majBoutonEvoluer(j, requis) {
+  const dernier = requis === null;
+  const prix = coutEvolution(j);
+  const assezXp = assezXpPourEvoluer(j);
   const pret = peutEvoluer(j);
   el.btEvoluer.innerHTML =
     '<span class="touche">E</span>'
     + '<span class="icone">✦</span>'
     + '<b>' + t('bouton.evoluer') + '</b>'
-    + '<span class="prix">' + (requis === null ? t('bouton.max')
-        : (pret ? t('bouton.pret') : Math.floor(j.xp) + ' / ' + requis)) + '</span>'
-    + '<small>' + (requis === null ? '' : nomDe(AGES[j.age + 1])) + '</small>';
+    + '<span class="prix">' + (dernier ? t('bouton.max') : prix) + '</span>'
+    + '<small>' + (dernier ? ''
+        : (assezXp ? nomDe(AGES[j.age + 1])
+                   : Math.floor(j.xp) + ' / ' + requis + ' ' + t('hud.xpCourt'))) + '</small>';
   el.btEvoluer.disabled = !pret;
   el.btEvoluer.classList.toggle('pret', pret);
+  el.btEvoluer.title = dernier ? t('hud.ageMax')
+    : nomDe(AGES[j.age + 1]) + '\n' + prix + ' ' + t('hud.or').toLowerCase()
+      + ' + ' + requis + ' ' + t('hud.xpCourt');
 }
 
 function majBoutonSpecial(j) {
   const sp = AGES[j.age].special;
-  const pret = j.specialRecharge <= 0;
-  const reste = Math.ceil(j.specialRecharge);
+  const chargee = j.specialRecharge <= 0;
+  const pret = chargee && j.or >= sp.cout;
   el.btSpecial.innerHTML =
     '<span class="touche">A</span>'
     + '<span class="icone">☄</span>'
     + '<b>' + nomDe(sp) + '</b>'
-    + '<span class="prix">' + (pret ? t('bouton.pret') : reste + ' s') + '</span>'
-    + (pret ? '' : '<span class="recharge" style="width:'
+    + '<span class="prix">' + sp.cout + '</span>'
+    + '<small>' + (chargee ? t('bouton.pret')
+        : t('hud.secondes', { n: Math.ceil(j.specialRecharge) })) + '</small>'
+    + (chargee ? '' : '<span class="recharge" style="width:'
         + (100 * (1 - j.specialRecharge / sp.recharge)) + '%"></span>');
   el.btSpecial.disabled = !pret;
   el.btSpecial.classList.toggle('pret', pret);
+  el.btSpecial.title = nomDe(sp) + '\n' + t('stat.degats') + ' : ' + sp.degats
+    + '\n' + t('stat.cout') + ' : ' + sp.cout;
 }
 
 function majFile(j) {

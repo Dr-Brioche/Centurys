@@ -118,17 +118,35 @@ export function acheterTourelle(camp) {
   return true;
 }
 
-export function peutEvoluer(camp) {
+// Changer d'âge coûte DEUX choses : de l'expérience (qui ne s'obtient qu'en
+// tuant) et de l'or. Il faut donc avoir combattu ET avoir économisé.
+export function assezXpPourEvoluer(camp) {
   const requis = xpPourEvoluer(camp.age);
   return requis !== null && camp.xp >= requis;
 }
 
+export function coutEvolution(camp) {
+  return (camp.age + 1 < AGES.length) ? AGES[camp.age + 1].orRequis : Infinity;
+}
+
+export function peutEvoluer(camp) {
+  return assezXpPourEvoluer(camp) && camp.or >= coutEvolution(camp);
+}
+
 export function evoluer(camp) {
-  if (!peutEvoluer(camp)) {
+  const requis = xpPourEvoluer(camp.age);
+  if (requis === null) return false;                    // déjà au dernier âge
+  if (camp.xp < requis) {
     if (camp.id === 'joueur') { message('info.pasAssezXp', null, 'erreur'); son('erreur'); }
     return false;
   }
-  camp.xp -= xpPourEvoluer(camp.age);
+  const prix = coutEvolution(camp);
+  if (camp.or < prix) {
+    if (camp.id === 'joueur') { message('info.pasAssezOrEvo', null, 'erreur'); son('erreur'); }
+    return false;
+  }
+  camp.xp -= requis;
+  camp.or -= prix;
   camp.age++;
   // Évoluer répare un peu le château : ça récompense la montée
   // en âge et laisse une chance de remonter au score.
@@ -142,6 +160,10 @@ export function evoluer(camp) {
   return true;
 }
 
+export function coutSpecial(camp) {
+  return AGES[camp.age].special.cout;
+}
+
 export function lancerSpecial(camp) {
   if (camp.specialRecharge > 0) {
     if (camp.id === 'joueur') { message('info.recharge', null, 'erreur'); son('erreur'); }
@@ -153,6 +175,12 @@ export function lancerSpecial(camp) {
     return false;
   }
   const sp = AGES[camp.age].special;
+  if (camp.or < sp.cout) {
+    if (camp.id === 'joueur') { message('info.pasAssezOr', null, 'erreur'); son('erreur'); }
+    return false;
+  }
+  camp.or -= sp.cout;
+  camp.specialsLances++;
   camp.specialRecharge = sp.recharge;
   etat.effets.push({ type: 'special', variante: sp.effet, camp: camp.id, t: 0, duree: 1.2 });
   for (const c of cibles) {
@@ -234,6 +262,7 @@ function faireSortir(camp, def) {
     pv: def.pv,
     pvMax: def.pv,
     x: camp.x + camp.sens * (R.chateauLargeur / 2 + def.largeur / 2 + 6),
+    xImage: camp.x + camp.sens * (R.chateauLargeur / 2 + def.largeur / 2 + 6),
     cd: 0,
     marche: true,
     phase: Math.random() * 10,
@@ -246,6 +275,15 @@ function faireSortir(camp, def) {
 }
 
 function majUnites(dt) {
+  // ⚠ TOUT LE MONDE JOUE EN MÊME TEMPS.
+  // On fige d'abord la position de chaque troupe au début de l'image, et
+  // toutes les décisions (qui je vise, suis-je à portée) se prennent sur ces
+  // positions figées. Sans ça, la troupe traitée en second voyait son
+  // adversaire déjà avancé, entrait à portée une image plus tôt et frappait
+  // la première : un camp gagnait systématiquement, même à armées égales.
+  for (const u of etat.unites) u.xImage = u.x;
+
+  const attaques = [];
   for (const u of etat.unites) {
     if (u.mort) { u.fade -= dt; continue; }
     if (u.flash > 0) u.flash = Math.max(0, u.flash - dt * 4);
@@ -256,15 +294,16 @@ function majUnites(dt) {
     const cible = trouverCible(u);
     let distance;
     if (cible) {
-      distance = Math.abs(cible.x - u.x) - (u.def.largeur + cible.def.largeur) / 2;
+      distance = Math.abs(cible.xImage - u.xImage) - (u.def.largeur + cible.def.largeur) / 2;
     } else {
-      distance = Math.abs(bordChateau(campAdverse) - u.x) - u.def.largeur / 2;
+      distance = Math.abs(bordChateau(campAdverse) - u.xImage) - u.def.largeur / 2;
     }
 
     if (distance <= u.def.portee) {
       u.marche = false;
       if (u.cd <= 0) {
-        attaquer(u, cible, cible ? null : campAdverse);
+        // On note le coup, on ne le porte pas encore.
+        attaques.push({ u, cible, chateau: cible ? null : campAdverse });
         u.cd = u.def.cadence;
         u.animAttaque = Math.min(0.35, u.def.cadence * 0.5);
       }
@@ -273,6 +312,11 @@ function majUnites(dt) {
       avancer(u, dt);
     }
   }
+
+  // Les coups partent maintenant, tous ensemble : deux troupes qui s'achèvent
+  // mutuellement tombent ensemble au lieu que la première servie l'emporte.
+  for (const a of attaques) attaquer(a.u, a.cible, a.chateau);
+
   // On retire les morts une fois leur petite chute terminée.
   for (let i = etat.unites.length - 1; i >= 0; i--) {
     if (etat.unites[i].mort && etat.unites[i].fade <= 0) etat.unites.splice(i, 1);
@@ -284,7 +328,7 @@ function trouverCible(u) {
   let meilleur = null, meilleureD = Infinity;
   for (const e of etat.unites) {
     if (e.mort || e.camp === u.camp) continue;
-    const devant = (e.x - u.x) * u.sens;
+    const devant = (e.xImage - u.xImage) * u.sens;
     if (devant < -12) continue;                 // il est derrière nous : on l'ignore
     if (devant < meilleureD) { meilleureD = devant; meilleur = e; }
   }
@@ -292,21 +336,22 @@ function trouverCible(u) {
 }
 
 function avancer(u, dt) {
-  let nx = u.x + u.sens * u.def.vitesse * dt;
+  let nx = u.xImage + u.sens * u.def.vitesse * dt;
 
   // On ne rentre pas dans le château adverse.
   const limite = bordChateau(etat.camps[autre(u.camp)]) - u.sens * (u.def.largeur / 2 + 2);
   if ((nx - limite) * u.sens > 0) nx = limite;
 
   // On ne traverse pas un allié : on fait la queue derrière lui.
+  // (positions figées, là aussi, pour que personne n'ait l'avantage du tour)
   for (const a of etat.unites) {
     if (a === u || a.mort || a.camp !== u.camp) continue;
-    if ((a.x - u.x) * u.sens <= 0) continue;
+    if ((a.xImage - u.xImage) * u.sens <= 0) continue;
     const requis = (u.def.largeur + a.def.largeur) / 2 + R.ecart;
-    if ((a.x - nx) * u.sens < requis) nx = a.x - u.sens * requis;
+    if ((a.xImage - nx) * u.sens < requis) nx = a.xImage - u.sens * requis;
   }
 
-  if ((nx - u.x) * u.sens < 0) nx = u.x;         // jamais de marche arrière
+  if ((nx - u.xImage) * u.sens < 0) nx = u.xImage;   // jamais de marche arrière
   u.x = nx;
   u.phase += dt * (u.def.vitesse / 7);
 }

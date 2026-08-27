@@ -34,6 +34,8 @@ export const TEXTES = {
   "hud.file":        { fr: "Entraînement",     en: "Training" },
   "hud.evolution":   { fr: "Évolution",        en: "Evolution" },
   "hud.ageMax":      { fr: "Âge ultime atteint", en: "Final age reached" },
+  "hud.xpCourt":     { fr: "XP",               en: "XP" },
+  "hud.secondes":    { fr: "{n} s",            en: "{n}s" },
 
   // --- Boutons d'action
   "bouton.revenu":   { fr: "Revenu",           en: "Income" },
@@ -64,6 +66,8 @@ export const TEXTES = {
   "info.recharge":   { fr: "Attaque spéciale en recharge", en: "Special attack recharging" },
   "info.aucuneCible":{ fr: "Aucun ennemi sur le terrain", en: "No enemy on the field" },
   "info.pasAssezXp": { fr: "Pas assez d'expérience pour évoluer", en: "Not enough experience to evolve" },
+  "info.pasAssezOrEvo": { fr: "Il faut aussi de l'or pour changer d'âge",
+                          en: "Changing age also costs gold" },
   "info.nouvelAge":  { fr: "Nouvel âge : {age}", en: "New age: {age}" },
   "info.ageEnnemi":  { fr: "L'ennemi passe à l'âge : {age}", en: "The enemy reaches: {age}" },
   "info.annule":     { fr: "Entraînement annulé, or remboursé", en: "Training cancelled, gold refunded" },

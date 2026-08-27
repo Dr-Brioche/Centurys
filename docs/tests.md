@@ -8,7 +8,8 @@ regarder un méca est une perte de temps.
 
 | Page | Ce qu'elle montre |
 |---|---|
-| `outils/test-unites.html` | **Toutes** les troupes des cinq âges, dans les deux camps, avec marche et attaque animées. C'est la page à ouvrir dès qu'on touche à `jeu/rendu/unites.js`. |
+| `outils/test-unites.html` | **Toutes** les troupes et tourelles des cinq âges, dans les deux camps, avec marche et attaque animées. C'est la page à ouvrir dès qu'on touche à `jeu/rendu/unites.js` ou au dessin des tourelles. |
+| `outils/test-equilibrage.html` | Le **banc d'essai** : bataille en miroir (justice du moteur) et simulation de dix parties en accéléré (durée, âges atteints, répartition des victoires). Deux boutons, aucun réglage. |
 
 En créer une nouvelle pour un autre écran est presque toujours plus rapide
 que de jouer jusqu'à lui.
@@ -31,7 +32,7 @@ Ouvrir la console du navigateur (F12) pendant une partie :
 const { etat } = await import('./jeu/systems/etat.js');
 
 etat.camps.joueur.or = 99999;          // riche
-etat.camps.joueur.xp = 99999;          // évolution immédiate (touche E)
+etat.camps.joueur.xp = 99999;          // l'expérience pour évoluer (il faut AUSSI l'or)
 etat.camps.joueur.age = 4;             // directement à l'âge futuriste
 etat.camps.joueur.specialRecharge = 0; // attaque spéciale prête (touche A)
 etat.camps.joueur.tourelles.fill(null); // vider les emplacements de tourelles
@@ -46,10 +47,29 @@ suivante, c'est normal.
 ## Vérifier l'équilibrage sans jouer
 
 On peut faire jouer le jeu **contre lui-même en accéléré** : on appelle
-`majJeu(0.05)` en boucle au lieu d'attendre les images. Une partie de 13
-minutes se simule en quelques secondes. C'est comme ça que la durée des
-parties et les niveaux de revenu atteints ont été réglés — voir la
-section « L'adversaire » de `concept.md` pour la logique de décision.
+`majJeu(0.05)` en boucle au lieu d'attendre les images, et `majIA(0.05, camp)`
+pour **les deux camps** (`majIA` prend le camp en paramètre exprès). Une partie
+de dix minutes se simule en quelques secondes. C'est comme ça que la durée des
+parties, les âges atteints et les niveaux de revenu ont été réglés.
+
+## ⚠ Le test le plus important : la bataille en miroir
+
+Le joueur est **toujours** le camp de gauche. Si le moteur avantage un côté,
+le jeu est injuste et personne ne s'en rend compte.
+
+Le test : poser deux armées **rigoureusement symétriques** autour du centre du
+terrain (x = 640), faire tourner `majJeu` et regarder qui reste debout. La
+bonne réponse est **zéro survivant des deux côtés**. Le bouton
+« Bataille en miroir » de `outils/test-equilibrage.html` le fait pour six
+formations différentes et donne le verdict.
+
+Ce test a déjà attrapé un vrai bug : les troupes étaient traitées l'une après
+l'autre, celle traitée en second voyait son adversaire déjà avancé, entrait à
+portée une image plus tôt et frappait la première. Le camp de droite gagnait
+alors **7 parties sur 10** à armées égales. La correction (positions figées en
+début d'image + tous les coups portés ensemble) est dans `majUnites`
+(`jeu/systems/combat.js`). **Toute modification du combat doit refaire ce
+test.**
 
 ## Pièges déjà payés
 

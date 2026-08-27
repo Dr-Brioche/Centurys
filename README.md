@@ -41,11 +41,11 @@ Tout se fait **à la souris OU au clavier**, sans exception.
 ## Les règles en trois phrases
 
 1. Ton **revenu** te donne de l'or en continu ; tuer une troupe adverse en
-   rapporte aussi. L'or sert à acheter des troupes **et** à augmenter le revenu.
-2. Chaque troupe tuée donne de l'**expérience** ; assez d'expérience permet de
-   passer à l'**âge suivant**, qui débloque trois troupes bien plus fortes.
-   L'or peut aussi acheter jusqu'à **trois tourelles** sur ton château : elles
-   tirent toutes seules sur ce qui s'approche.
+   rapporte aussi. Une seule bourse paie **tout** : les troupes, le revenu,
+   les tourelles, le changement d'âge et l'attaque spéciale.
+2. Chaque troupe tuée donne aussi de l'**expérience**. Passer à l'**âge
+   suivant** coûte de l'expérience **et** de l'or : il faut avoir combattu et
+   avoir économisé.
 3. Le premier qui met le **château adverse** à zéro gagne.
 
 ## Comment c'est rangé

@@ -17,7 +17,7 @@ export const R = {
   chateauEnnemiX: 1162,    // centre du château ennemi (à droite)
   chateauLargeur: 124,
   chateauHauteur: 186,
-  pvChateau: 1600,         // points de vie d'un château
+  pvChateau: 2200,        // points de vie d'un château
 
   // --- L'économie
   orDepart: 220,           // or au début de la partie
@@ -43,6 +43,7 @@ export const R = {
   // --- L'adversaire (ordinateur)
   ia: {
     reflexion: 0.7,        // secondes entre deux décisions
+    armeeMax: 14,          // au-delà, le terrain est plein : l'IA garde son or
     facile:    { revenu: 0.75, agressivite: 0.7 },
     normal:    { revenu: 1.0,  agressivite: 1.0 },
     difficile: { revenu: 1.35, agressivite: 1.3 },

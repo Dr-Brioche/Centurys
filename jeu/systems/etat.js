@@ -38,6 +38,15 @@ export function creerCamp(id, options = {}) {
     bonusRevenu: options.bonusRevenu || 1,
     agressivite: options.agressivite || 1,
     iaTimer: 0,
+    // Tempérament, tiré au sort à chaque partie : sans ça l'adversaire
+    // rejouerait exactement la même partie à chaque fois.
+    gout: [(Math.random() - 0.5) * 0.16,      // penchant pour le corps à corps
+           (Math.random() - 0.5) * 0.16,      // ... pour les tireurs
+           (Math.random() - 0.5) * 0.12],     // ... pour les grosses unités
+    patience: 0.8 + Math.random() * 0.7,      // taille du groupe qu'il attend avant d'attaquer
+    specialsLances: 0,
+    blocage: 0,        // depuis combien de décisions la ligne ne bouge plus
+    assaut: 0,         // or à mettre de côté avant de lâcher une grosse vague
     tues: 0,
     perdues: 0,
     secousse: 0,                               // le château tremble quand il prend un coup
