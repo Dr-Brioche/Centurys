@@ -56,6 +56,7 @@ export const R = {
     reflexion: 0.7,        // secondes entre deux décisions (valeur par défaut)
     armeeMax: 14,          // au-delà, le terrain est plein : l'IA garde son or
     revenuMax: 11,         // plafond d'améliorations de revenu (valeur par défaut)
+    pousseeLibre: 3,       // troupes qu'il garde en marche quand le terrain d'en face est VIDE
     // `aubaine` = ravitaillement surprise. C'est le bouton « rendre l'ennemi
     // plus coriace » sans changer une seule règle du jeu : il touche de temps
     // en temps l'équivalent de X secondes de son propre revenu, donc le bonus

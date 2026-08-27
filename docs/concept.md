@@ -173,7 +173,8 @@ pas. Toutes les 0,7 seconde il prend **une** décision, dans cet ordre :
 5. assiégé : **économiser pour l'attaque spéciale** si elle est chargée mais
    trop chère (voir « Se sortir d'un siège » plus bas) ;
 6. **économiser** s'il a l'expérience pour évoluer mais pas l'or ;
-7. investir : le revenu, puis les murs, puis une tourelle ;
+7. investir : le revenu, puis les murs, puis une tourelle — **sauf si le
+   terrain d'en face est vide** (voir « Punir la passivité ») ;
 8. assiégé : réunir de quoi **contre-attaquer à plusieurs** ;
 9. **préparer une vague** si la ligne est bloquée ;
 10. sinon acheter la troupe qui manque à son armée.
@@ -212,6 +213,23 @@ troupe envoyée seule meurt seule. Après une quinzaine de secondes de statu quo
 l'adversaire **décroche** : il arrête de nourrir la mêlée, met de côté, puis
 lâche quatre troupes d'un coup. C'est ce qui débloque une partie — sans cette
 règle, deux adversaires identiques se neutralisaient pendant trente minutes.
+
+### Punir la passivité
+
+Rester passif ne doit jamais être gratuit. Tant que le joueur n'a **aucune
+troupe sur le terrain**, chaque troupe que l'ordinateur envoie traverse
+tranquillement et va frapper le château : c'est le meilleur or dépensé du jeu.
+Il garde donc en permanence **trois troupes en marche** avant de penser à son
+économie (`R.ia.pousseeLibre`).
+
+Sans cette exception, les troupes passaient toujours en dernier dans ses
+priorités : il consacrait les trente premières secondes de chaque partie à
+empiler du revenu et des tourelles. Un joueur qui économisait de son côté
+n'avait alors rien à regarder et, surtout, **ne payait rien pour son
+attentisme** — les deux camps s'enrichissaient en silence. C'était le contraire
+de la tension recherchée. Désormais l'ordinateur ouvre avec trois troupes dans
+la première seconde et demie, et un joueur qui ne répond pas voit son château
+tomber en moins de trois minutes.
 
 ### Se sortir d'un siège
 

@@ -71,10 +71,20 @@ export function majIA(dt, camp = etat.camps.ennemi) {
       && camp.or < coutEvolution(camp) && !info.enDanger) return;
 
   // 7. Investir : le revenu, les murs, les tourelles.
-  if (veutRevenu(camp, info)) { ameliorerRevenu(camp); return; }
-  if (veutDefense(camp, info)) { ameliorerDefense(camp); return; }
-  if (veutTourelle(camp, info)) { acheterTourelle(camp); return; }
-  if (!desespere && epargnePourTourelle(camp, info)) return;
+  //    MAIS PAS SI LE TERRAIN D'EN FACE EST VIDE. Dans ce cas chaque troupe
+  //    envoyée traverse tranquillement et va taper le château : c'est le
+  //    meilleur or dépensé du jeu. Sans cette exception, l'ordinateur passait
+  //    les trente premières secondes à empiler du revenu et des tourelles
+  //    pendant qu'un joueur qui économisait aussi ne voyait rien se passer —
+  //    et rester passif ne coûtait rien à personne.
+  const occasion = info.menace === 0
+                && (info.nos + camp.file.length) < R.ia.pousseeLibre;
+  if (!occasion) {
+    if (veutRevenu(camp, info)) { ameliorerRevenu(camp); return; }
+    if (veutDefense(camp, info)) { ameliorerDefense(camp); return; }
+    if (veutTourelle(camp, info)) { acheterTourelle(camp); return; }
+    if (!desespere && epargnePourTourelle(camp, info)) return;
+  }
 
   // 8. Assiégé : réunir de quoi contre-attaquer à plusieurs.
   if (!desespere && prepareUneRiposte(camp, info)) return;
@@ -197,12 +207,6 @@ function choisirUnite(camp, info) {
   // Terrain saturé : une troupe de plus ferait la queue sans jamais taper.
   // Mieux vaut garder l'or pour le revenu, une tourelle ou le prochain âge.
   if (info.nos >= R.ia.armeeMax && !info.enDanger) return -1;
-
-  // Terrain calme : on attend d'avoir de quoi sortir un VRAI groupe
-  // (un fantassin et un tireur) plutôt que d'envoyer les troupes une par une
-  // se faire tuer isolées.
-  if (info.menace === 0 && !info.onPousse && camp.file.length === 0
-      && camp.or < (unites[0].cout + unites[1].cout) * camp.patience) return -1;
 
   const voulu = compositionVoulue(camp, info);
   const total = info.nosParRole[0] + info.nosParRole[1] + info.nosParRole[2];
