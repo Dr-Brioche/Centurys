@@ -30,6 +30,17 @@ export const R = {
   // --- La file d'entraînement
   fileMax: 5,              // nombre d'unités qu'on peut mettre en attente
 
+  // --- La défense du château (les murs)
+  defenseMax: 8,           // niveaux d'épaississement possibles
+  defenseCout: 160,        // prix du 1er niveau
+  defenseMult: 1.5,        // le prix est multiplié par ça à chaque niveau
+  defensePas: 0.12,        // chaque niveau ajoute 12 % des PV de départ
+
+  // --- La réparation
+  reparerPart: 0.25,       // remet un quart des PV maximum
+  reparerBase: 220,        // prix à l'âge de pierre
+  reparerParAge: 0.9,      // ... et il grimpe de 90 % du prix de base par âge
+
   // --- Les tourelles de château
   tourellesMax: 3,             // emplacements sur chaque château
   tourelleMult: [1, 1.5, 2.1], // l'emplacement n°2 puis n°3 coûtent plus cher
@@ -49,6 +60,20 @@ export const R = {
     difficile: { revenu: 1.35, agressivite: 1.3 },
   },
 };
+
+// Prix du prochain niveau de mur (Infinity quand on est au maximum).
+export function coutDefense(camp) {
+  if (camp.defenseNiveau >= R.defenseMax) return Infinity;
+  return Math.round(R.defenseCout * Math.pow(R.defenseMult, camp.defenseNiveau));
+}
+
+// Prix d'une réparation. Il monte avec l'âge (c'est voulu : réparer doit
+// rester un vrai choix, pas un réflexe gratuit) et avec la taille du château,
+// puisqu'on répare un quart d'un mur devenu plus épais.
+export function coutReparation(camp) {
+  return Math.round(R.reparerBase * (1 + camp.age * R.reparerParAge)
+                    * (camp.pvMax / R.pvChateau));
+}
 
 // Prix du prochain niveau de revenu pour un camp donné.
 export function coutRevenu(camp) {

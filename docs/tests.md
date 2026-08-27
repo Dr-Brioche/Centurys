@@ -36,6 +36,8 @@ etat.camps.joueur.xp = 99999;          // l'expérience pour évoluer (il faut A
 etat.camps.joueur.age = 4;             // directement à l'âge futuriste
 etat.camps.joueur.specialRecharge = 0; // attaque spéciale prête (touche A)
 etat.camps.joueur.tourelles.fill(null); // vider les emplacements de tourelles
+etat.camps.joueur.pv = 500;            // château entamé (le bouton Réparer s'allume en rouge)
+etat.camps.joueur.defenseNiveau = 0;   // remettre les murs à leur épaisseur de départ
 etat.camps.ennemi.pv = 40;             // fin de partie en quelques coups
 etat.camps.ennemi.bonusRevenu = 0;     // l'adversaire n'achète plus rien
 etat.unites.length = 0;                // vider le terrain

@@ -88,7 +88,7 @@ canvas#jeu{position:absolute; inset:0; width:1280px; height:720px; display:block
   display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 14px;
   background:linear-gradient(rgba(10,8,6,0), rgba(10,8,6,.85) 38%);
 }
-#unites, #actions{display:flex; gap:8px; align-items:stretch;}
+#unites, #actions{display:flex; gap:7px; align-items:stretch;}
 button{
   font-family:inherit; color:var(--texte); cursor:pointer;
   background:var(--panneau); border:2px solid var(--bord); border-radius:var(--rayon);
@@ -97,7 +97,7 @@ button:focus-visible{outline:3px solid var(--or); outline-offset:2px;}
 button:disabled{cursor:not-allowed;}
 
 .unite{
-  position:relative; width:132px; height:112px; padding:4px 6px 6px;
+  position:relative; width:126px; height:112px; padding:4px 6px 6px;
   display:flex; flex-direction:column; align-items:center; gap:1px;
   transition:transform .08s ease, border-color .12s;
 }
@@ -110,16 +110,17 @@ button:disabled{cursor:not-allowed;}
 .unite:disabled .prix{color:#ff9b8b;}
 
 .action{
-  position:relative; width:112px; height:112px; padding:6px 6px 8px;
+  position:relative; width:104px; height:112px; padding:6px 6px 8px;
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
   transition:transform .08s ease, border-color .12s;
 }
 .action:hover:not(:disabled){transform:translateY(-3px); border-color:var(--or);}
-.action b{font-size:14px;}
+.action b{font-size:13.5px; line-height:1.1;}
 .action .prix{font-size:14px; font-weight:bold; color:var(--or);}
 .action small{font-size:11px; opacity:.75;}
 .action:disabled{opacity:.46; filter:grayscale(.5);}
 .action.pret{border-color:var(--vert); box-shadow:0 0 14px rgba(127,208,106,.5);}
+.action.urgent{border-color:#ff8a72; box-shadow:0 0 14px rgba(255,138,114,.55);}
 .action .icone{font-size:26px; line-height:1;}
 .recharge{
   position:absolute; left:0; bottom:0; height:5px; background:var(--or); border-radius:0 3px 3px 0;
@@ -225,6 +226,8 @@ button:disabled{cursor:not-allowed;}
       <div id="unites"></div>
       <div id="actions">
         <button id="btRevenu" class="action"></button>
+        <button id="btDefense" class="action"></button>
+        <button id="btReparer" class="action"></button>
         <button id="btTourelle" class="action"></button>
         <button id="btEvoluer" class="action"></button>
         <button id="btSpecial" class="action"></button>

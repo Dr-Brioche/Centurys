@@ -30,6 +30,7 @@ export function creerCamp(id, options = {}) {
     xp: 0,
     age: 0,
     revenuNiveau: 0,
+    defenseNiveau: 0,
     pv: R.pvChateau,
     pvMax: R.pvChateau,
     file: [],                                  // [{ def, restant, total }]

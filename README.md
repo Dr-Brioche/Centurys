@@ -24,12 +24,17 @@ defend your castle, destroy the enemy one, and evolve through five ages.*
 
 ## Commandes
 
-Tout se fait **à la souris OU au clavier**, sans exception.
+**Tout se joue entièrement à la souris** : chaque action est un bouton en bas
+de l'écran. Les touches ci-dessous ne sont qu'un raccourci pour aller plus
+vite — rien n'oblige à les connaître. (`Tab` puis `Entrée` fonctionne aussi,
+et c'est ce qui rendra un portage manette simple plus tard.)
 
 | Touche | Action |
 |---|---|
 | `1` `2` `3` | acheter la troupe correspondante |
 | `4` | améliorer le revenu |
+| `5` | épaissir les murs du château |
+| `R` | réparer le château (un quart de sa vie) |
 | `T` | construire ou améliorer une tourelle de château |
 | `E` | évoluer (changer d'âge) |
 | `A` | attaque spéciale |
@@ -42,7 +47,8 @@ Tout se fait **à la souris OU au clavier**, sans exception.
 
 1. Ton **revenu** te donne de l'or en continu ; tuer une troupe adverse en
    rapporte aussi. Une seule bourse paie **tout** : les troupes, le revenu,
-   les tourelles, le changement d'âge et l'attaque spéciale.
+   les tourelles, les murs, les réparations, le changement d'âge et l'attaque
+   spéciale.
 2. Chaque troupe tuée donne aussi de l'**expérience**. Passer à l'**âge
    suivant** coûte de l'expérience **et** de l'or : il faut avoir combattu et
    avoir économisé.

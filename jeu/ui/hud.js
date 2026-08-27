@@ -6,13 +6,14 @@
 //  OU au clavier, sans exception.
 // ============================================================
 
-import { R, coutRevenu, revenuDe } from '../data/reglages.js';
+import { R, coutRevenu, revenuDe, coutDefense, coutReparation } from '../data/reglages.js';
 import { AGES, xpPourEvoluer } from '../data/ages.js';
 import { etat } from '../systems/etat.js';
 import { t, nomDe } from '../systems/langue.js';
 import { acheterUnite, ameliorerRevenu, evoluer, peutEvoluer, lancerSpecial,
          annulerDernier, acheterTourelle, coutTourelle,
-         assezXpPourEvoluer, coutEvolution } from '../systems/combat.js';
+         assezXpPourEvoluer, coutEvolution,
+         ameliorerDefense, reparer } from '../systems/combat.js';
 import { dessinerUnite } from '../rendu/unites.js';
 import { basculerSon, sonCoupe } from '../core/sons.js';
 import { message } from './messages.js';
@@ -30,12 +31,15 @@ export function initHud() {
     vieIa: id('vieIa'), vieIaTxt: id('vieIaTxt'),
     ageNom: id('ageNom'), xpBarre: id('xpBarre'), xpTxt: id('xpTxt'),
     unites: id('unites'), file: id('file'),
-    btRevenu: id('btRevenu'), btTourelle: id('btTourelle'),
+    btRevenu: id('btRevenu'), btDefense: id('btDefense'), btReparer: id('btReparer'),
+    btTourelle: id('btTourelle'),
     btEvoluer: id('btEvoluer'), btSpecial: id('btSpecial'),
     btPause: id('btPause'), btSon: id('btSon'),
   });
 
   el.btRevenu.addEventListener('click', () => ameliorerRevenu(etat.camps.joueur));
+  el.btDefense.addEventListener('click', () => ameliorerDefense(etat.camps.joueur));
+  el.btReparer.addEventListener('click', () => reparer(etat.camps.joueur));
   el.btTourelle.addEventListener('click', () => acheterTourelle(etat.camps.joueur));
   el.btEvoluer.addEventListener('click', () => evoluer(etat.camps.joueur));
   el.btSpecial.addEventListener('click', () => lancerSpecial(etat.camps.joueur));
@@ -154,6 +158,8 @@ export function majHud() {
   }
 
   majBoutonRevenu(j);
+  majBoutonDefense(j);
+  majBoutonReparer(j);
   majBoutonTourelle(j);
   majBoutonEvoluer(j, requis);
   majBoutonSpecial(j);
@@ -172,6 +178,43 @@ function majBoutonRevenu(j) {
     + '<small>' + t('bouton.revenuNiv', { n: j.revenuNiveau + 1 }) + '</small>';
   el.btRevenu.disabled = max || j.or < prix;
   el.btRevenu.title = t('bouton.revenu') + ' : +' + R.revenuPas.toFixed(2) + '/s';
+}
+
+// Épaissir les murs : chaque niveau ajoute des PV maximum, et les donne
+// tout de suite (la barre de vie monte d'autant).
+function majBoutonDefense(j) {
+  const prix = coutDefense(j);
+  const max = prix === Infinity;
+  const gain = Math.round(R.pvChateau * R.defensePas);
+  el.btDefense.innerHTML =
+    '<span class="touche">5</span>'
+    + '<span class="icone">▦</span>'
+    + '<b>' + t('bouton.defense') + '</b>'
+    + '<span class="prix">' + (max ? t('bouton.max') : prix) + '</span>'
+    + '<small>' + t('bouton.revenuNiv', { n: j.defenseNiveau + 1 }) + '</small>';
+  el.btDefense.disabled = max || j.or < prix;
+  el.btDefense.title = t('bouton.defense') + '\n'
+    + t('stat.pvMax') + ' : ' + j.pvMax + '\n' + t('stat.gainPv', { n: gain });
+}
+
+// Réparer : rend un quart des PV maximum. Le prix monte avec l'âge.
+function majBoutonReparer(j) {
+  const prix = coutReparation(j);
+  const gain = Math.round(Math.min(j.pvMax - j.pv, j.pvMax * R.reparerPart));
+  const intact = j.pv >= j.pvMax;
+  const possible = !intact && j.or >= prix;
+  el.btReparer.innerHTML =
+    '<span class="touche">R</span>'
+    + '<span class="icone">✚</span>'
+    + '<b>' + t('bouton.reparer') + '</b>'
+    + '<span class="prix">' + prix + '</span>'
+    + '<small>' + t('stat.gainPv', { n: gain }) + '</small>';
+  el.btReparer.disabled = !possible;
+  // Le bouton s'allume en rouge quand le château est vraiment entamé :
+  // c'est là qu'il faut y penser, pas avant.
+  el.btReparer.classList.toggle('urgent', possible && j.pv < j.pvMax * 0.6);
+  el.btReparer.title = t('bouton.reparer') + '\n'
+    + t('stat.cout') + ' : ' + prix + '\n' + t('stat.gainPv', { n: gain });
 }
 
 function majBoutonTourelle(j) {

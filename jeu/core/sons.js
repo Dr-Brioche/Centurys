@@ -83,6 +83,8 @@ export function son(nom) {
     case 'chateau':   souffle({ duree: 0.25, gain: 0.45, filtre: 500 }); break;
     case 'revenu':    bip({ type: 'sine', de: 700, vers: 1050, duree: 0.10, gain: 0.4 });
                       bip({ type: 'sine', de: 1050, vers: 1400, duree: 0.12, gain: 0.35, retard: 0.09 }); break;
+    case 'reparation': [440, 587, 740].forEach((f, i) =>
+                        bip({ type: 'sine', de: f, vers: f * 1.02, duree: 0.22, gain: 0.4, retard: i * 0.07 })); break;
     case 'evolution': [523, 659, 784, 1046].forEach((f, i) =>
                         bip({ type: 'triangle', de: f, vers: f * 1.02, duree: 0.30, gain: 0.45, retard: i * 0.11 })); break;
     case 'special':   bip({ type: 'sawtooth', de: 1200, vers: 180, duree: 0.5, gain: 0.4 });

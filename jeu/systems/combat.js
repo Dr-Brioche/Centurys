@@ -5,7 +5,7 @@
 //  joueur ou l'ordinateur qui les déclenche.
 // ============================================================
 
-import { R, coutRevenu, revenuDe } from '../data/reglages.js';
+import { R, coutRevenu, revenuDe, coutDefense, coutReparation } from '../data/reglages.js';
 import { AGES, xpPourEvoluer } from '../data/ages.js';
 import { etat, creerCamp, autre, bordChateau, positionTourelle } from './etat.js';
 import { son } from '../core/sons.js';
@@ -127,6 +127,56 @@ export function assezXpPourEvoluer(camp) {
 
 export function coutEvolution(camp) {
   return (camp.age + 1 < AGES.length) ? AGES[camp.age + 1].orRequis : Infinity;
+}
+
+// ------------------------------------------------------------
+//  Les murs : épaissir, et réparer
+// ------------------------------------------------------------
+
+export function ameliorerDefense(camp) {
+  const prix = coutDefense(camp);
+  if (prix === Infinity) {
+    if (camp.id === 'joueur') { message('info.defenseMax', null, 'erreur'); son('erreur'); }
+    return false;
+  }
+  if (camp.or < prix) {
+    if (camp.id === 'joueur') { message('info.pasAssezOr', null, 'erreur'); son('erreur'); }
+    return false;
+  }
+  // Le gain se met AUSSI dans les points de vie actuels : sinon épaissir ses
+  // murs creuserait un trou dans la barre de vie, ce qui est absurde.
+  const gain = Math.round(R.pvChateau * R.defensePas);
+  camp.or -= prix;
+  camp.defenseNiveau++;
+  camp.pvMax += gain;
+  camp.pv += gain;
+  etat.effets.push({ type: 'renfort', camp: camp.id, t: 0, duree: 1 });
+  if (camp.id === 'joueur') {
+    son('revenu');
+    message('info.mursRenforces', { n: gain }, 'bien');
+  }
+  return true;
+}
+
+export function reparer(camp) {
+  if (camp.pv >= camp.pvMax) {
+    if (camp.id === 'joueur') { message('info.chateauIntact', null, 'erreur'); son('erreur'); }
+    return false;
+  }
+  const prix = coutReparation(camp);
+  if (camp.or < prix) {
+    if (camp.id === 'joueur') { message('info.pasAssezOr', null, 'erreur'); son('erreur'); }
+    return false;
+  }
+  camp.or -= prix;
+  const avant = camp.pv;
+  camp.pv = Math.min(camp.pvMax, camp.pv + camp.pvMax * R.reparerPart);
+  etat.effets.push({ type: 'renfort', camp: camp.id, t: 0, duree: 1.1 });
+  if (camp.id === 'joueur') {
+    son('reparation');
+    message('info.chateauRepare', { n: Math.round(camp.pv - avant) }, 'bien');
+  }
+  return true;
 }
 
 export function peutEvoluer(camp) {

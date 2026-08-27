@@ -15,12 +15,13 @@
 //  reprendre toujours la même.
 // ============================================================
 
-import { R, coutRevenu } from '../data/reglages.js';
+import { R, coutRevenu, coutDefense, coutReparation } from '../data/reglages.js';
 import { AGES } from '../data/ages.js';
 import { etat, autre } from './etat.js';
 import { acheterUnite, ameliorerRevenu, evoluer, peutEvoluer, assezXpPourEvoluer,
          coutEvolution, lancerSpecial, coutSpecial,
-         acheterTourelle, coutTourelle } from './combat.js';
+         acheterTourelle, coutTourelle,
+         ameliorerDefense, reparer } from './combat.js';
 
 // `camp` est un paramètre pour qu'on puisse faire jouer l'IA des deux côtés
 // quand on teste l'équilibrage en accéléré (voir docs/tests.md).
@@ -38,9 +39,16 @@ export function majIA(dt, camp = etat.camps.ennemi) {
   // 2. L'attaque spéciale, seulement quand elle est rentable.
   if (specialInteressante(camp, info) && lancerSpecial(camp)) return;
 
+  // 3. Réparer quand le château est vraiment entamé. Payer pour rester debout
+  //    passe avant tout le reste : un château à zéro, c'est la partie perdue.
+  if (camp.pv < camp.pvMax * 0.55) {
+    const marge = info.enDanger ? 1 : 1.5;   // sous pression on ne marchande pas
+    if (camp.or >= coutReparation(camp) * marge && reparer(camp)) return;
+  }
+
   if (camp.file.length >= R.fileMax) return;
 
-  // 3. L'expérience est là mais pas l'or : on serre les dents et on économise.
+  // 4. L'expérience est là mais pas l'or : on serre les dents et on économise.
   //    Chaque pièce mise de côté rapproche du changement d'âge, qui vaut bien
   //    plus qu'un fantassin de plus. On ne rouvre la bourse que si le château
   //    est vraiment menacé.
@@ -52,15 +60,16 @@ export function majIA(dt, camp = etat.camps.ennemi) {
     return;
   }
 
-  // 4. Investir : le revenu d'abord, les tourelles ensuite.
+  // 5. Investir : le revenu, les murs, les tourelles.
   if (veutRevenu(camp, info)) { ameliorerRevenu(camp); return; }
+  if (veutDefense(camp, info)) { ameliorerDefense(camp); return; }
   if (veutTourelle(camp, info)) { acheterTourelle(camp); return; }
   if (epargnePourTourelle(camp, info)) return;
 
-  // 5. Ligne bloquée : on prépare une vraie vague.
+  // 6. Ligne bloquée : on prépare une vraie vague.
   if (prepareUneVague(camp, info)) return;
 
-  // 6. Composer son armée.
+  // 7. Composer son armée.
   const index = choisirUnite(camp, info);
   if (index >= 0) acheterUnite(camp, index);
 }
@@ -205,6 +214,15 @@ function veutRevenu(camp, info) {
   if (camp.revenuNiveau < 4) return true;              // les premiers niveaux sont trop rentables pour les rater
   if (camp.or >= prix * 1.8) return true;              // assez riche pour investir ET produire
   return info.menace <= 1 && Math.random() < 0.6 / camp.agressivite;
+}
+
+function veutDefense(camp, info) {
+  const prix = coutDefense(camp);
+  if (prix === Infinity || camp.or < prix) return false;
+  // Sous pression, épaissir les murs vaut n'importe quelle troupe.
+  if (info.enDanger) return true;
+  // Sinon c'est un luxe : seulement quand le revenu tourne et qu'on est à l'aise.
+  return camp.revenuNiveau >= 3 && camp.or >= prix * 2;
 }
 
 function veutTourelle(camp, info) {

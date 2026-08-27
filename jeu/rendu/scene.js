@@ -399,6 +399,9 @@ function effets(ctx) {
       case 'evolution':
         dessinerEvolution(ctx, e, k);
         break;
+      case 'renfort':
+        dessinerRenfort(ctx, e, k);
+        break;
       case 'special':
         dessinerSpecial(ctx, e, k);
         break;
@@ -420,6 +423,31 @@ function dessinerEvolution(ctx, e, k) {
   ctx.strokeStyle = '#fff0b0'; ctx.lineWidth = 6 * (1 - k) + 1;
   ctx.beginPath();
   ctx.ellipse(camp.x, R.solY, 60 + k * 190, 18 + k * 60, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+// Réparation / épaississement des murs : le château se recouvre un instant
+// d'une lueur verte qui monte du sol.
+function dessinerRenfort(ctx, e, k) {
+  const camp = etat.camps[e.camp];
+  if (!camp) return;
+  const haut = R.solY - R.chateauHauteur;
+  ctx.save();
+  // Assez visible pour se remarquer, assez discret pour ne pas cacher le château.
+  ctx.globalAlpha = Math.max(0, 1 - k) * 0.55;
+  const g = ctx.createLinearGradient(0, R.solY, 0, haut - 30);
+  g.addColorStop(0, 'rgba(150,240,130,0.42)');
+  g.addColorStop(Math.min(1, k * 1.3), 'rgba(150,240,130,0.16)');
+  g.addColorStop(1, 'rgba(150,240,130,0)');
+  ctx.fillStyle = g;
+  cheminArrondi(ctx, camp.x - R.chateauLargeur / 2 - 6, haut - 30,
+                R.chateauLargeur + 12, R.chateauHauteur + 30, 12);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(190,255,170,0.9)';
+  ctx.lineWidth = 3 * (1 - k) + 1;
+  cheminArrondi(ctx, camp.x - R.chateauLargeur / 2 - 4 - k * 8, haut - 6 - k * 8,
+                R.chateauLargeur + 8 + k * 16, R.chateauHauteur + 6 + k * 8, 12);
   ctx.stroke();
   ctx.restore();
 }

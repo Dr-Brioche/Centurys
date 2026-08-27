@@ -24,7 +24,7 @@ file d'entraînement) sert à rythmer cet arbitrage.
 |---|---|---|
 | **Or** | revenu continu + butin des troupes tuées | troupes, revenu, tourelles, **changement d'âge**, **attaque spéciale** |
 | **Expérience** | uniquement en tuant des troupes | changer d'âge (en plus de l'or) |
-| **Points de vie du château** | 2200 au départ, +12 % à chaque évolution | c'est la barre de défaite |
+| **Points de vie du château** | 2200 au départ ; +12 % à chaque évolution ; épaississables et réparables (§ 6) | c'est la barre de défaite |
 
 **Tout se paie avec la même bourse** : des troupes maintenant, du revenu pour
 plus tard, des tourelles pour tenir, le changement d'âge, l'attaque spéciale.
@@ -103,7 +103,31 @@ poussée adverse beaucoup plus chère — et elle transforme une défaite qui
 s'annonce en contre-attaque, parce que chaque troupe qu'elle tue rapporte de
 l'or et de l'expérience.
 
-## 6. La file d'entraînement
+## 6. Les murs : épaissir et réparer
+
+La barre de vie du château est la seule barre de défaite. Deux boutons agissent
+dessus, et tous les deux se paient avec la même bourse que les troupes :
+
+- **Défense** — épaissit les murs : +12 % des PV de départ par niveau, huit
+  niveaux au maximum, prix ×1,5 à chaque fois (160, 240, 360, 540…). Le gain
+  est ajouté **aussi aux PV actuels** : sinon épaissir ses murs creuserait un
+  trou dans sa propre barre de vie, ce qui n'a aucun sens pour le joueur.
+- **Réparer** — rend **un quart des PV maximum**, d'un coup. Le prix monte
+  avec l'âge (220 à l'âge de pierre, plus de 1 000 à l'âge futuriste) et avec
+  l'épaisseur des murs, puisqu'on répare un quart d'un château devenu plus
+  gros. Le bouton est éteint quand le château est intact, et **s'allume en
+  rouge** en dessous de 60 % de vie : c'est là qu'il faut y penser, pas avant.
+
+Leur rôle : offrir une **porte de sortie quand ça va mal**. Sans elles, une
+mauvaise vague se paie jusqu'à la fin de la partie et le joueur mené sait
+qu'il a perdu dix minutes trop tôt — c'est le meilleur moyen de lui faire
+fermer le jeu. Avec elles, il peut racheter son erreur en or, donc en temps.
+
+Le garde-fou est le prix : réparer, c'est de l'or qui ne devient pas des
+troupes. Un joueur qui se contente de réparer n'attaque jamais, et perd
+lentement. C'est voulu — **la défense achète du temps, elle ne gagne pas**.
+
+## 7. La file d'entraînement
 
 Une troupe achetée n'apparaît pas tout de suite : elle rejoint une file (5
 places maximum) et sort après son temps d'entraînement (1,3 s pour un homme
@@ -113,7 +137,7 @@ Retour arrière, annule et rembourse.
 Son rôle : empêcher d'acheter dix troupes d'un coup et de tout gagner sur un
 seul pic d'or. Elle transforme l'or en **flux** plutôt qu'en **stock**.
 
-## 7. Le combat, en détail
+## 8. Le combat, en détail
 
 - **Tout le monde joue en même temps.** À chaque image, on fige d'abord la
   position de toutes les troupes, puis chacune décide (qui je vise, suis-je à
@@ -135,7 +159,7 @@ seul pic d'or. Elle transforme l'or en **flux** plutôt qu'en **stock**.
   expérience. Deux armées qui s'annulent ne s'appauvrissent donc pas
   complètement : la partie continue d'avancer.
 
-## 8. L'adversaire
+## 9. L'adversaire
 
 Un joueur artificiel qui suit les mêmes règles que le joueur — il ne triche
 pas. Toutes les 0,7 seconde il prend **une** décision, dans cet ordre :
@@ -143,11 +167,14 @@ pas. Toutes les 0,7 seconde il prend **une** décision, dans cet ordre :
 1. évoluer si c'est possible ;
 2. lancer l'attaque spéciale s'il peut se la payer et qu'il y a assez de
    cibles, ou s'il est en danger ;
-3. **économiser** s'il a l'expérience pour évoluer mais pas l'or — il ferme la
+3. **réparer** son château dès qu'il tombe sous 55 % de vie — sous pression il
+   ne marchande pas, au calme il attend d'avoir la marge ;
+4. **économiser** s'il a l'expérience pour évoluer mais pas l'or — il ferme la
    bourse jusqu'au changement d'âge, sauf si son château est menacé ;
-4. investir dans son revenu, puis dans une tourelle ;
-5. **préparer une vague** si la ligne est bloquée (voir plus bas) ;
-6. sinon acheter la troupe qui manque à son armée.
+5. investir : le revenu, puis les murs (un luxe au calme, une priorité quand
+   ça pousse), puis une tourelle ;
+6. **préparer une vague** si la ligne est bloquée (voir plus bas) ;
+7. sinon acheter la troupe qui manque à son armée.
 
 ### Il compose une armée, il n'empile pas des fantassins
 
@@ -188,7 +215,7 @@ d'attaquer). Sans ça il rejouerait exactement la même partie à chaque fois.
 La difficulté ne change **que** son revenu et son appétit :
 facile ×0,75 — normal ×1 — difficile ×1,35.
 
-## 9. Contraintes permanentes
+## 10. Contraintes permanentes
 
 - **Souris ET clavier** pour toute action, sans exception (ça prépare la manette).
 - **Bilingue FR/EN** en permanence : une fonctionnalité livrée dans une seule
@@ -201,7 +228,7 @@ facile ×0,75 — normal ×1 — difficile ×1,35.
 - Le jeu est dessiné en **1280 × 720** puis mis à l'échelle d'un bloc : canvas
   et interface HTML bougent ensemble, rien ne se décale jamais.
 
-## 10. Où sont les chiffres
+## 11. Où sont les chiffres
 
 | Quoi | Où |
 |---|---|
@@ -209,7 +236,7 @@ facile ×0,75 — normal ×1 — difficile ×1,35.
 | Les 5 âges, les 15 troupes, les attaques spéciales | `jeu/data/ages.js` |
 | Tous les textes affichés (FR + EN) | `jeu/data/textes.js` |
 
-## 11. Pistes pour la suite (pas encore faites)
+## 12. Pistes pour la suite (pas encore faites)
 
 - **Vendre une tourelle** pour récupérer une partie de l'or (utile quand on
   a sur-investi en défense et qu'il faut basculer en attaque).
