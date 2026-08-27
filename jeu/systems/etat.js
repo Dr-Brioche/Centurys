@@ -20,6 +20,11 @@ export const etat = {
 
 export function autre(id) { return id === 'joueur' ? 'ennemi' : 'joueur'; }
 
+// Un tirage au sort entre deux bornes.
+export function entre(bornes) {
+  return bornes[0] + Math.random() * (bornes[1] - bornes[0]);
+}
+
 export function creerCamp(id, options = {}) {
   return {
     id,
@@ -37,6 +42,10 @@ export function creerCamp(id, options = {}) {
     tourelles: new Array(R.tourellesMax).fill(null),  // [{ def, age, cd, anim } | null]
     specialRecharge: 0,
     bonusRevenu: options.bonusRevenu || 1,
+    reflexion: options.reflexion || R.ia.reflexion,   // sa vitesse de réaction
+    revenuMaxIA: options.revenuMax || R.ia.revenuMax, // jusqu'où il monte son revenu
+    aubaine: options.aubaine || null,      // ravitaillement surprise (difficulté)
+    aubaineTimer: options.aubaine ? entre(options.aubaine.delai) : Infinity,
     agressivite: options.agressivite || 1,
     iaTimer: 0,
     // Tempérament, tiré au sort à chaque partie : sans ça l'adversaire
@@ -47,6 +56,7 @@ export function creerCamp(id, options = {}) {
     patience: 0.8 + Math.random() * 0.7,      // taille du groupe qu'il attend avant d'attaquer
     specialsLances: 0,
     blocage: 0,        // depuis combien de décisions la ligne ne bouge plus
+    riposte: 0,        // or à réunir avant de contre-attaquer quand on est assiégé
     assaut: 0,         // or à mettre de côté avant de lâcher une grosse vague
     tues: 0,
     perdues: 0,

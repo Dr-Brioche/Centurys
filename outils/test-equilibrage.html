@@ -26,9 +26,11 @@
 du terrain. La bonne réponse est <b>zéro survivant des deux côtés</b>. Si un camp
 survit, le moteur avantage un côté — et comme le joueur est toujours à gauche,
 le jeu est injuste. À relancer après <b>toute</b> modification du combat.</p>
-<p><b>Simuler des parties</b> : l'adversaire joue des deux côtés, en accéléré. On y lit
-la durée des parties, les âges atteints et la répartition des victoires (elle doit
-tourner autour de moitié-moitié).</p>
+<p><b>Simuler des parties</b> : l'adversaire joue des deux côtés, en accéléré, <b>à armes
+strictement égales</b> (on lui retire son bonus de difficulté des deux côtés). C'est donc
+un test de <b>justice</b> : la répartition des victoires doit tourner autour de
+moitié-moitié. Pour mesurer la difficulté réelle des trois modes, c'est un autre calcul —
+voir « Mesurer la difficulté » dans <code>docs/tests.md</code>.</p>
 
 <button id="btMiroir">Bataille en miroir</button>
 <button id="btParties">Simuler 10 parties</button>
@@ -113,6 +115,12 @@ document.getElementById('btParties').addEventListener('click', e => {
     let g = 0, d = 0, nul = 0, duree = 0;
     for (let p = 0; p < 10; p++) {
       C.demarrerPartie('normal');
+      // Armes égales : on neutralise l'avantage de difficulté de l'ordinateur,
+      // sinon on mesurerait sa difficulté au lieu de la justice du moteur.
+      for (const c of [etat.camps.joueur, etat.camps.ennemi]) {
+        c.bonusRevenu = 1; c.aubaine = null;
+        c.reflexion = 0.7; c.revenuMaxIA = 11; c.agressivite = 1;
+      }
       while (!etat.fin && etat.temps < 60 * 30) {
         C.majJeu(0.05);
         majIA(0.05, etat.camps.joueur);

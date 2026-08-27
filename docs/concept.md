@@ -167,14 +167,21 @@ pas. Toutes les 0,7 seconde il prend **une** décision, dans cet ordre :
 1. évoluer si c'est possible ;
 2. lancer l'attaque spéciale s'il peut se la payer et qu'il y a assez de
    cibles, ou s'il est en danger ;
-3. **réparer** son château dès qu'il tombe sous 55 % de vie — sous pression il
-   ne marchande pas, au calme il attend d'avoir la marge ;
-4. **économiser** s'il a l'expérience pour évoluer mais pas l'or — il ferme la
-   bourse jusqu'au changement d'âge, sauf si son château est menacé ;
-5. investir : le revenu, puis les murs (un luxe au calme, une priorité quand
-   ça pousse), puis une tourelle ;
-6. **préparer une vague** si la ligne est bloquée (voir plus bas) ;
-7. sinon acheter la troupe qui manque à son armée.
+3. **réparer** son château dès qu'il tombe sous 55 % de vie ;
+4. assiégé : poser une **tourelle** — elle tire tout de suite, elle ne meurt
+   pas, et elle n'a pas à traverser le terrain ;
+5. assiégé : **économiser pour l'attaque spéciale** si elle est chargée mais
+   trop chère (voir « Se sortir d'un siège » plus bas) ;
+6. **économiser** s'il a l'expérience pour évoluer mais pas l'or ;
+7. investir : le revenu, puis les murs, puis une tourelle ;
+8. assiégé : réunir de quoi **contre-attaquer à plusieurs** ;
+9. **préparer une vague** si la ligne est bloquée ;
+10. sinon acheter la troupe qui manque à son armée.
+
+Une seule règle passe avant tout : si son château est **sous 30 % de vie**, il
+arrête d'économiser pour quoi que ce soit et dépense immédiatement ce qu'il a.
+Une troupe qui sort maintenant vaut mieux qu'un plan pour dans trente
+secondes — sans ce garde-fou, il pouvait mourir la bourse pleine.
 
 ### Il compose une armée, il n'empile pas des fantassins
 
@@ -206,14 +213,55 @@ l'adversaire **décroche** : il arrête de nourrir la mêlée, met de côté, pu
 lâche quatre troupes d'un coup. C'est ce qui débloque une partie — sans cette
 règle, deux adversaires identiques se neutralisaient pendant trente minutes.
 
+### Se sortir d'un siège
+
+C'était son plus gros défaut : quand des troupes s'accumulaient devant son
+château, il rachetait **le fantassin le moins cher toutes les 0,7 seconde**.
+Chacun mourait avant même d'atteindre les tireurs d'en face, et comme il
+dépensait tout au fur et à mesure il n'avait jamais les 250 pièces de son
+attaque spéciale — celle qui aurait nettoyé le terrain d'un coup. Un cercle
+vicieux : fauché parce qu'il gaspillait, il gaspillait parce qu'il était
+fauché.
+
+Trois règles cassent ce cercle :
+
+- **il ferme la bourse pour payer la spéciale** plutôt que d'alimenter la
+  mêlée au compte-gouttes ;
+- **il ne sort plus une troupe seule** : il réunit de quoi en lâcher trois
+  ensemble (deux fantassins et un tireur) ;
+- **il répond aux tireurs par des tireurs.** Si ce qui l'écrase tire de loin,
+  un fantassin meurt sans jamais arriver au contact : il achète alors ses
+  propres archers, qui tapent d'aussi loin.
+
 ### Il a un tempérament
 
 À chaque partie il tire au sort un léger penchant (un peu plus de tireurs, un
 peu plus de gros) et une **patience** (la taille du paquet qu'il attend avant
 d'attaquer). Sans ça il rejouerait exactement la même partie à chaque fois.
 
-La difficulté ne change **que** son revenu et son appétit :
-facile ×0,75 — normal ×1 — difficile ×1,35.
+### La difficulté
+
+Elle ne change **aucune règle** : l'ordinateur paie les mêmes prix et suit les
+mêmes lois que le joueur. Elle joue sur quatre curseurs seulement.
+
+| | Facile | Normal | Difficile |
+|---|---|---|---|
+| Revenu | ×0,70 | ×1,00 | ×1,30 |
+| Réaction (secondes entre deux décisions) | 1,2 | 0,7 | 0,5 |
+| Revenu maximum | niveau 5 | niveau 9 | niveau 12 |
+| **Ravitaillement surprise** | aucun | 26 à 42 s de revenu, toutes les 34 à 58 s | 34 à 55 s de revenu, toutes les 24 à 44 s |
+
+Le **ravitaillement** est le curseur qui rend l'adversaire vraiment coriace :
+de temps en temps, il empoche l'équivalent de X secondes de son propre revenu.
+Comme le bonus est proportionnel à son revenu, il reste juste dosé à tous les
+âges. Il est **annoncé au joueur** (« Convoi ennemi : +171 or ») et un chiffre
+doré monte de son château : un bonus caché passerait pour de la triche.
+
+Résultat mesuré, 14 parties par mode, l'ordinateur affrontant la même cervelle
+mais sans aucun bonus : il gagne **~20 %** en facile, **~64 %** en normal,
+**~86 %** en difficile. Attention si on retouche ces chiffres : `agressivite`
+tirait autrefois dans le mauvais sens et rendait le mode facile plus fort que
+le mode normal.
 
 ## 10. Contraintes permanentes
 

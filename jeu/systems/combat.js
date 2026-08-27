@@ -7,7 +7,7 @@
 
 import { R, coutRevenu, revenuDe, coutDefense, coutReparation } from '../data/reglages.js';
 import { AGES, xpPourEvoluer } from '../data/ages.js';
-import { etat, creerCamp, autre, bordChateau, positionTourelle } from './etat.js';
+import { etat, creerCamp, autre, bordChateau, positionTourelle, entre } from './etat.js';
 import { son } from '../core/sons.js';
 import { message } from '../ui/messages.js';
 import { nomDe } from './langue.js';
@@ -29,6 +29,9 @@ export function demarrerPartie(difficulte = 'normal') {
   etat.camps.ennemi = creerCamp('ennemi', {
     bonusRevenu: reg.revenu,
     agressivite: reg.agressivite,
+    reflexion: reg.reflexion,
+    revenuMax: reg.revenuMax,
+    aubaine: reg.aubaine,
   });
   etat.ecran = 'jeu';
 }
@@ -261,6 +264,7 @@ function majCamp(camp, dt) {
   const gain = revenuDe(camp) * dt;
   camp.or += gain;
   camp.orTotal += gain;
+  majAubaine(camp, dt);
   if (camp.specialRecharge > 0) camp.specialRecharge = Math.max(0, camp.specialRecharge - dt);
   if (camp.secousse > 0) camp.secousse = Math.max(0, camp.secousse - dt * 2.5);
 
@@ -302,6 +306,20 @@ function majTourelles(camp, dt) {
     t.anim = Math.min(0.35, t.def.cadence * 0.6);
     son('tir');
   }
+}
+
+// Le ravitaillement surprise de l'adversaire (voir R.ia dans reglages.js).
+// Il est annoncé au joueur : un bonus caché passerait pour de la triche.
+function majAubaine(camp, dt) {
+  if (!camp.aubaine) return;
+  camp.aubaineTimer -= dt;
+  if (camp.aubaineTimer > 0) return;
+  camp.aubaineTimer = entre(camp.aubaine.delai);
+  const gain = Math.round(revenuDe(camp) * entre(camp.aubaine.secondes));
+  camp.or += gain;
+  camp.orTotal += gain;
+  texteFlottant(camp.x, R.solY - R.chateauHauteur - 26, '+' + gain, '#ffd76a');
+  if (camp.id === 'ennemi') message('info.ravitaillement', { n: gain }, 'info');
 }
 
 function faireSortir(camp, def) {

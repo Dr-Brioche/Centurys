@@ -54,6 +54,31 @@ pour **les deux camps** (`majIA` prend le camp en paramètre exprès). Une parti
 de dix minutes se simule en quelques secondes. C'est comme ça que la durée des
 parties, les âges atteints et les niveaux de revenu ont été réglés.
 
+## Mesurer la difficulté des trois modes
+
+Le banc d'essai teste la **justice** (à armes égales), pas la difficulté. Pour
+mesurer la difficulté, on fait jouer les deux camps par la même cervelle mais
+on **retire tout bonus au camp de gauche** — il représente alors un joueur
+humain compétent — et on compte les victoires de l'ordinateur :
+
+```js
+const j = etat.camps.joueur;
+j.aubaine = null; j.bonusRevenu = 1;   // le « joueur » n'a aucun avantage
+```
+
+Repères mesurés sur 14 parties par mode :
+
+| Mode | Victoires de l'ordinateur | Durée moyenne |
+|---|---|---|
+| Facile | ~20 % | ~14 min |
+| Normal | ~64 % | ~9 min |
+| Difficile | ~86 % | ~8 min |
+
+Si Facile se met à gagner plus que Normal, c'est qu'un réglage de difficulté
+tire dans le mauvais sens — c'est déjà arrivé avec `agressivite`, qui poussait
+l'IA « facile » à mieux investir dans son économie et donc à gagner davantage
+sur les parties longues.
+
 ## ⚠ Le test le plus important : la bataille en miroir
 
 Le joueur est **toujours** le camp de gauche. Si le moteur avantage un côté,

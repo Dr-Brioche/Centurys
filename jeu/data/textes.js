@@ -74,6 +74,7 @@ export const TEXTES = {
                           en: "Changing age also costs gold" },
   "info.nouvelAge":  { fr: "Nouvel âge : {age}", en: "New age: {age}" },
   "info.ageEnnemi":  { fr: "L'ennemi passe à l'âge : {age}", en: "The enemy reaches: {age}" },
+  "info.ravitaillement": { fr: "Convoi ennemi : +{n} or", en: "Enemy convoy: +{n} gold" },
   "info.annule":     { fr: "Entraînement annulé, or remboursé", en: "Training cancelled, gold refunded" },
   "info.revenuMax":  { fr: "Revenu au maximum", en: "Income already maxed" },
   "info.defenseMax": { fr: "Murs au maximum",  en: "Walls already maxed" },

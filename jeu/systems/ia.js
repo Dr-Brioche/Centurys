@@ -29,14 +29,19 @@ export function majIA(dt, camp = etat.camps.ennemi) {
   if (!camp) return;
   camp.iaTimer -= dt;
   if (camp.iaTimer > 0) return;
-  camp.iaTimer = R.ia.reflexion;
+  camp.iaTimer = camp.reflexion || R.ia.reflexion;
 
   const info = analyser(camp);
+
+  // Le château est sur le point de tomber : on arrête d'économiser pour quoi
+  // que ce soit. Une troupe qui sort MAINTENANT vaut mieux qu'un plan pour
+  // dans trente secondes — sans ça, l'IA pouvait mourir la bourse pleine.
+  const desespere = camp.pv < camp.pvMax * 0.3;
 
   // 1. Changer d'âge : c'est toujours le meilleur coup possible.
   if (peutEvoluer(camp)) { evoluer(camp); return; }
 
-  // 2. L'attaque spéciale, seulement quand elle est rentable.
+  // 2. L'attaque spéciale : c'est L'outil pour se sortir d'un mauvais pas.
   if (specialInteressante(camp, info) && lancerSpecial(camp)) return;
 
   // 3. Réparer quand le château est vraiment entamé. Payer pour rester debout
@@ -46,30 +51,38 @@ export function majIA(dt, camp = etat.camps.ennemi) {
     if (camp.or >= coutReparation(camp) * marge && reparer(camp)) return;
   }
 
+  // 4. Assiégé : une tourelle est le meilleur or dépensé. Elle tire tout de
+  //    suite, elle ne peut pas mourir, et elle ne traverse pas le terrain.
+  if (info.enDanger && veutTourelle(camp, info)) { acheterTourelle(camp); return; }
+
+  // 5. Assiégé et la spéciale est chargée mais impayable : ON ÉCONOMISE POUR
+  //    ELLE. C'est le cœur du problème d'avant — l'IA rachetait un fantassin
+  //    à chaque décision, restait fauchée, et ne lançait donc jamais le sort
+  //    qui l'aurait sauvée. Une troupe isolée ne change rien à un siège ; la
+  //    spéciale nettoie le terrain d'un coup.
+  if (!desespere && epargnePourSpecial(camp, info)) return;
+
   if (camp.file.length >= R.fileMax) return;
 
-  // 4. L'expérience est là mais pas l'or : on serre les dents et on économise.
+  // 6. L'expérience est là mais pas l'or : on serre les dents et on économise.
   //    Chaque pièce mise de côté rapproche du changement d'âge, qui vaut bien
-  //    plus qu'un fantassin de plus. On ne rouvre la bourse que si le château
-  //    est vraiment menacé.
-  if (assezXpPourEvoluer(camp) && camp.or < coutEvolution(camp)) {
-    if (info.enDanger) {
-      const index = choisirUnite(camp, info);
-      if (index >= 0) acheterUnite(camp, index);
-    }
-    return;
-  }
+  //    plus qu'un fantassin de plus.
+  if (!desespere && assezXpPourEvoluer(camp)
+      && camp.or < coutEvolution(camp) && !info.enDanger) return;
 
-  // 5. Investir : le revenu, les murs, les tourelles.
+  // 7. Investir : le revenu, les murs, les tourelles.
   if (veutRevenu(camp, info)) { ameliorerRevenu(camp); return; }
   if (veutDefense(camp, info)) { ameliorerDefense(camp); return; }
   if (veutTourelle(camp, info)) { acheterTourelle(camp); return; }
-  if (epargnePourTourelle(camp, info)) return;
+  if (!desespere && epargnePourTourelle(camp, info)) return;
 
-  // 6. Ligne bloquée : on prépare une vraie vague.
-  if (prepareUneVague(camp, info)) return;
+  // 8. Assiégé : réunir de quoi contre-attaquer à plusieurs.
+  if (!desespere && prepareUneRiposte(camp, info)) return;
 
-  // 7. Composer son armée.
+  // 9. Ligne bloquée : on prépare une vraie vague.
+  if (!desespere && prepareUneVague(camp, info)) return;
+
+  // 10. Composer son armée.
   const index = choisirUnite(camp, info);
   if (index >= 0) acheterUnite(camp, index);
 }
@@ -170,8 +183,16 @@ function choisirUnite(camp, info) {
   }
   if (!abordables.length) return -1;
 
-  // Débordé : on bouche le trou avec ce qui sort le plus vite, tant pis pour le plan.
-  if (info.enDanger && info.menace > info.nos + 1) return abordables[0];
+  // Débordé : on prend ce qui sort le plus vite… sauf si ce qui nous écrase,
+  // ce sont des TIREURS. Un fantassin envoyé seul meurt avant même de les
+  // atteindre : dans ce cas on répond avec nos propres tireurs, qui tapent
+  // d'aussi loin qu'eux.
+  if (info.enDanger && info.menace > info.nos + 1) {
+    const aDistance = info.ennemiParRole[1] + info.ennemiParRole[2];
+    const auContact = info.ennemiParRole[0];
+    if (aDistance > auContact && abordables.includes(1)) return 1;
+    return abordables[0];
+  }
 
   // Terrain saturé : une troupe de plus ferait la queue sans jamais taper.
   // Mieux vaut garder l'or pour le revenu, une tourelle ou le prochain âge.
@@ -207,8 +228,37 @@ function specialInteressante(camp, info) {
   return info.menace >= 3 && camp.or >= coutSpecial(camp) * 1.6;  // pour casser un paquet
 }
 
+// Assiégé, la spéciale chargée mais trop chère : on ferme la bourse jusqu'à
+// pouvoir la payer. Mieux vaut dix secondes sans rien acheter qu'un fantassin
+// jeté dans la mêlée toutes les dix secondes.
+function epargnePourSpecial(camp, info) {
+  if (camp.specialRecharge > 0) return false;
+  if (!info.enDanger || info.menace < 2) return false;
+  return camp.or < coutSpecial(camp);
+}
+
+// Assiégé et en infériorité : on réunit de quoi sortir un vrai paquet
+// (deux fantassins et un tireur) au lieu d'alimenter la mêlée un par un.
+function prepareUneRiposte(camp, info) {
+  if (!info.enDanger || info.menace <= info.nos) { camp.riposte = 0; return false; }
+
+  if (camp.riposte > 0) {
+    if (camp.or < camp.riposte) return true;   // on économise encore
+    camp.riposte = 0;                          // la riposte part : on achète sans retenue
+    return false;
+  }
+  // On ne relance une épargne que si le terrain est vide de notre côté :
+  // sinon on couperait une contre-attaque déjà en cours.
+  if (camp.file.length === 0 && info.nos <= 1) {
+    const u = AGES[camp.age].unites;
+    camp.riposte = Math.round(u[0].cout * 2 + u[1].cout);
+    return true;
+  }
+  return false;
+}
+
 function veutRevenu(camp, info) {
-  if (camp.revenuNiveau >= 11) return false;
+  if (camp.revenuNiveau >= (camp.revenuMaxIA || R.ia.revenuMax)) return false;
   const prix = coutRevenu(camp);
   if (camp.or < prix || info.enDanger) return false;
   if (camp.revenuNiveau < 4) return true;              // les premiers niveaux sont trop rentables pour les rater

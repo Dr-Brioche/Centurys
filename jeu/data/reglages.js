@@ -53,11 +53,25 @@ export const R = {
 
   // --- L'adversaire (ordinateur)
   ia: {
-    reflexion: 0.7,        // secondes entre deux décisions
+    reflexion: 0.7,        // secondes entre deux décisions (valeur par défaut)
     armeeMax: 14,          // au-delà, le terrain est plein : l'IA garde son or
-    facile:    { revenu: 0.75, agressivite: 0.7 },
-    normal:    { revenu: 1.0,  agressivite: 1.0 },
-    difficile: { revenu: 1.35, agressivite: 1.3 },
+    revenuMax: 11,         // plafond d'améliorations de revenu (valeur par défaut)
+    // `aubaine` = ravitaillement surprise. C'est le bouton « rendre l'ennemi
+    // plus coriace » sans changer une seule règle du jeu : il touche de temps
+    // en temps l'équivalent de X secondes de son propre revenu, donc le bonus
+    // reste proportionné à l'âge de la partie. En facile, il n'en reçoit pas.
+    //   secondes : combien de secondes de revenu il empoche (tirage au sort)
+    //   delai    : combien de temps entre deux ravitaillements (tirage au sort)
+    //   revenu      : multiplie son or par seconde
+    //   reflexion   : secondes entre deux décisions (plus court = réagit plus vite)
+    //   revenuMax   : jusqu'où il monte son revenu
+    //   agressivite : plus haut = préfère les troupes à l'économie
+    facile:    { revenu: 0.70, agressivite: 0.8,  reflexion: 1.2, revenuMax: 5,
+                 aubaine: null },
+    normal:    { revenu: 1.00, agressivite: 1.0,  reflexion: 0.7, revenuMax: 9,
+                 aubaine: { secondes: [26, 42], delai: [34, 58] } },
+    difficile: { revenu: 1.30, agressivite: 1.25, reflexion: 0.5, revenuMax: 12,
+                 aubaine: { secondes: [34, 55], delai: [24, 44] } },
   },
 };
 
