@@ -89,5 +89,16 @@ test.**
   troupe adverse à moins de sa portée du château (240 px à l'âge de pierre),
   donc bien plus près que le milieu du terrain. Vider le terrain et faire
   sortir une seule troupe adverse est le moyen le plus rapide.
+- **⚠ NE JAMAIS réécrire `innerHTML` d'un bouton à chaque image.** Le bug a
+  déjà été payé : les boutons du bas se reconstruisaient 60 fois par seconde,
+  et **0 clic sur 10 était pris en compte quand on visait le centre du bouton**
+  (les bords marchaient, d'où l'impression que « ça marche une fois sur
+  deux »). Le navigateur ne déclenche un clic que si l'appui et le relâchement
+  tombent sur le même élément ; un joueur garde le doigt appuyé une bonne
+  centaine de millisecondes, soit une dizaine d'images. → construire les
+  morceaux **une fois**, puis ne changer que leur `textContent`
+  (`preparerAction` / `ecrire` dans `jeu/ui/hud.js`).
+  Pour le retester : viser le **centre** d'un bouton, appuyer, attendre
+  ~130 ms, relâcher. Un clic instantané ne reproduit pas le bug.
 - **Vérifier les deux langues** avant de clore une tâche : un libellé anglais
   plus long peut déborder d'un bouton.

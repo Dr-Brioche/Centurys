@@ -4,6 +4,18 @@
 //  redimensionné avec le reste), le canvas ne sert qu'au jeu.
 //  Chaque bouton a sa touche clavier : jouable à la souris
 //  OU au clavier, sans exception.
+//
+//  ⚠ PIÈGE DÉJÀ PAYÉ — ON NE RÉÉCRIT JAMAIS innerHTML À CHAQUE IMAGE.
+//  Un bouton dont on remplace les enfants 60 fois par seconde PERD LES CLICS.
+//  Le navigateur ne déclenche un clic que si l'appui et le relâchement
+//  tombent sur le même élément ; or un joueur garde le doigt appuyé une
+//  bonne centaine de millisecondes, soit une dizaine d'images. Si on appuie
+//  sur le mot « Revenu » et que ce mot a été détruit et recréé entre-temps,
+//  le clic est perdu. Mesuré : 0 clic sur 10 pris en compte au centre du
+//  bouton (les bords, eux, touchent le <button> lui-même, qui ne bouge pas,
+//  et marchaient — d'où l'impression que « ça marche une fois sur deux »).
+//  → Les morceaux de chaque bouton sont construits UNE fois, puis on ne
+//    change que leur TEXTE (voir preparerAction / ecrire plus bas).
 // ============================================================
 
 import { R, coutRevenu, revenuDe, coutDefense, coutReparation } from '../data/reglages.js';
@@ -19,9 +31,9 @@ import { basculerSon, sonCoupe } from '../core/sons.js';
 import { message } from './messages.js';
 
 const el = {};
+const morceaux = {};   // les bouts de texte de chaque bouton, gardés d'une image à l'autre
 let ageAffiche = -1;
 let langueAffichee = '';
-let signatureFile = '';
 
 export function initHud() {
   const id = n => document.getElementById(n);
@@ -48,10 +60,47 @@ export function initHud() {
     message(coupe ? 'info.sonCoupe' : 'info.sonActif');
     majBoutonSon();
   });
+  // Squelette de chaque bouton d'action : construit une fois pour toutes.
+  morceaux.revenu   = preparerAction(el.btRevenu,   '4', '▲');
+  morceaux.defense  = preparerAction(el.btDefense,  '5', '▦');
+  morceaux.reparer  = preparerAction(el.btReparer,  'R', '✚');
+  morceaux.tourelle = preparerAction(el.btTourelle, 'T', '♜');
+  morceaux.evoluer  = preparerAction(el.btEvoluer,  'E', '✦');
+  morceaux.special  = preparerAction(el.btSpecial,  'A', '☄');
+
   majBoutonSon();
 
   // Un changement de langue oblige à réécrire les boutons.
   document.addEventListener('langue-changee', () => { langueAffichee = ''; });
+}
+
+// Construit le squelette d'un bouton d'action et rend ses morceaux, pour
+// qu'on n'ait plus jamais qu'à changer leur texte.
+function preparerAction(bouton, touche, icone) {
+  bouton.textContent = '';
+  const mk = (balise, classe, texte) => {
+    const e = document.createElement(balise);
+    if (classe) e.className = classe;
+    if (texte !== undefined) e.textContent = texte;
+    return e;
+  };
+  const parts = {
+    touche: mk('span', 'touche', touche),
+    icone: mk('span', 'icone', icone),
+    nom: mk('b', null, ''),
+    prix: mk('span', 'prix', ''),
+    bas: mk('small', null, ''),
+    jauge: mk('span', 'recharge'),
+  };
+  parts.jauge.style.width = '0%';
+  bouton.append(parts.touche, parts.icone, parts.nom, parts.prix, parts.bas, parts.jauge);
+  return parts;
+}
+
+// N'écrit que si le texte a vraiment changé : on ne touche pas au DOM pour rien.
+function ecrire(element, texte) {
+  const valeur = String(texte);
+  if (element.textContent !== valeur) element.textContent = valeur;
 }
 
 export function majBoutonSon() {
@@ -125,7 +174,7 @@ export function majHud() {
     ageAffiche = j.age;
     langueAffichee = document.documentElement.lang;
     construireBoutonsUnites(j);
-    signatureFile = '';
+    for (const c of el.file.children) c.dataset.unite = '';   // bulles à retraduire
   }
 
   // Bourse
@@ -167,15 +216,12 @@ export function majHud() {
 }
 
 function majBoutonRevenu(j) {
+  const m = morceaux.revenu;
   const max = j.revenuNiveau >= R.revenuMax;
   const prix = coutRevenu(j);
-  el.btRevenu.innerHTML =
-    '<span class="touche">4</span>'
-    + '<span class="icone">▲</span>'
-    + '<b>' + t('bouton.revenu') + '</b>'
-    + (max ? '<span class="prix">' + t('bouton.max') + '</span>'
-           : '<span class="prix">' + prix + '</span>')
-    + '<small>' + t('bouton.revenuNiv', { n: j.revenuNiveau + 1 }) + '</small>';
+  ecrire(m.nom, t('bouton.revenu'));
+  ecrire(m.prix, max ? t('bouton.max') : prix);
+  ecrire(m.bas, t('bouton.revenuNiv', { n: j.revenuNiveau + 1 }));
   el.btRevenu.disabled = max || j.or < prix;
   el.btRevenu.title = t('bouton.revenu') + ' : +' + R.revenuPas.toFixed(2) + '/s';
 }
@@ -183,15 +229,13 @@ function majBoutonRevenu(j) {
 // Épaissir les murs : chaque niveau ajoute des PV maximum, et les donne
 // tout de suite (la barre de vie monte d'autant).
 function majBoutonDefense(j) {
+  const m = morceaux.defense;
   const prix = coutDefense(j);
   const max = prix === Infinity;
   const gain = Math.round(R.pvChateau * R.defensePas);
-  el.btDefense.innerHTML =
-    '<span class="touche">5</span>'
-    + '<span class="icone">▦</span>'
-    + '<b>' + t('bouton.defense') + '</b>'
-    + '<span class="prix">' + (max ? t('bouton.max') : prix) + '</span>'
-    + '<small>' + t('bouton.revenuNiv', { n: j.defenseNiveau + 1 }) + '</small>';
+  ecrire(m.nom, t('bouton.defense'));
+  ecrire(m.prix, max ? t('bouton.max') : prix);
+  ecrire(m.bas, t('bouton.revenuNiv', { n: j.defenseNiveau + 1 }));
   el.btDefense.disabled = max || j.or < prix;
   el.btDefense.title = t('bouton.defense') + '\n'
     + t('stat.pvMax') + ' : ' + j.pvMax + '\n' + t('stat.gainPv', { n: gain });
@@ -203,12 +247,10 @@ function majBoutonReparer(j) {
   const gain = Math.round(Math.min(j.pvMax - j.pv, j.pvMax * R.reparerPart));
   const intact = j.pv >= j.pvMax;
   const possible = !intact && j.or >= prix;
-  el.btReparer.innerHTML =
-    '<span class="touche">R</span>'
-    + '<span class="icone">✚</span>'
-    + '<b>' + t('bouton.reparer') + '</b>'
-    + '<span class="prix">' + prix + '</span>'
-    + '<small>' + t('stat.gainPv', { n: gain }) + '</small>';
+  const m = morceaux.reparer;
+  ecrire(m.nom, t('bouton.reparer'));
+  ecrire(m.prix, prix);
+  ecrire(m.bas, t('stat.gainPv', { n: gain }));
   el.btReparer.disabled = !possible;
   // Le bouton s'allume en rouge quand le château est vraiment entamé :
   // c'est là qu'il faut y penser, pas avant.
@@ -222,12 +264,10 @@ function majBoutonTourelle(j) {
   const prix = coutTourelle(j);
   const posees = j.tourelles.filter(Boolean).length;
   const misAJour = posees >= R.tourellesMax && prix !== Infinity;
-  el.btTourelle.innerHTML =
-    '<span class="touche">T</span>'
-    + '<span class="icone">♜</span>'
-    + '<b>' + t(misAJour ? 'bouton.ameliorer' : 'bouton.tourelle') + '</b>'
-    + '<span class="prix">' + (prix === Infinity ? t('bouton.max') : prix) + '</span>'
-    + '<small>' + posees + ' / ' + R.tourellesMax + '</small>';
+  const m = morceaux.tourelle;
+  ecrire(m.nom, t(misAJour ? 'bouton.ameliorer' : 'bouton.tourelle'));
+  ecrire(m.prix, prix === Infinity ? t('bouton.max') : prix);
+  ecrire(m.bas, posees + ' / ' + R.tourellesMax);
   el.btTourelle.disabled = prix === Infinity || j.or < prix;
   el.btTourelle.title = nomDe(def)
     + '\n' + t('stat.degats') + ' : ' + def.degats
@@ -246,14 +286,12 @@ function majBoutonEvoluer(j, requis) {
   const prix = coutEvolution(j);
   const assezXp = assezXpPourEvoluer(j);
   const pret = peutEvoluer(j);
-  el.btEvoluer.innerHTML =
-    '<span class="touche">E</span>'
-    + '<span class="icone">✦</span>'
-    + '<b>' + t('bouton.evoluer') + '</b>'
-    + '<span class="prix">' + (dernier ? t('bouton.max') : prix) + '</span>'
-    + '<small>' + (dernier ? ''
-        : (assezXp ? nomDe(AGES[j.age + 1])
-                   : Math.floor(j.xp) + ' / ' + requis + ' ' + t('hud.xpCourt'))) + '</small>';
+  const m = morceaux.evoluer;
+  ecrire(m.nom, t('bouton.evoluer'));
+  ecrire(m.prix, dernier ? t('bouton.max') : prix);
+  ecrire(m.bas, dernier ? ''
+      : (assezXp ? nomDe(AGES[j.age + 1])
+                 : Math.floor(j.xp) + ' / ' + requis + ' ' + t('hud.xpCourt')));
   el.btEvoluer.disabled = !pret;
   el.btEvoluer.classList.toggle('pret', pret);
   el.btEvoluer.title = dernier ? t('hud.ageMax')
@@ -265,52 +303,54 @@ function majBoutonSpecial(j) {
   const sp = AGES[j.age].special;
   const chargee = j.specialRecharge <= 0;
   const pret = chargee && j.or >= sp.cout;
-  el.btSpecial.innerHTML =
-    '<span class="touche">A</span>'
-    + '<span class="icone">☄</span>'
-    + '<b>' + nomDe(sp) + '</b>'
-    + '<span class="prix">' + sp.cout + '</span>'
-    + '<small>' + (chargee ? t('bouton.pret')
-        : t('hud.secondes', { n: Math.ceil(j.specialRecharge) })) + '</small>'
-    + (chargee ? '' : '<span class="recharge" style="width:'
-        + (100 * (1 - j.specialRecharge / sp.recharge)) + '%"></span>');
+  const m = morceaux.special;
+  ecrire(m.nom, nomDe(sp));
+  ecrire(m.prix, sp.cout);
+  ecrire(m.bas, chargee ? t('bouton.pret')
+                        : t('hud.secondes', { n: Math.ceil(j.specialRecharge) }));
+  m.jauge.style.width = chargee ? '0%'
+    : (100 * (1 - j.specialRecharge / sp.recharge)) + '%';
   el.btSpecial.disabled = !pret;
   el.btSpecial.classList.toggle('pret', pret);
   el.btSpecial.title = nomDe(sp) + '\n' + t('stat.degats') + ' : ' + sp.degats
     + '\n' + t('stat.cout') + ' : ' + sp.cout;
 }
 
+// Même règle que pour les boutons : on ne reconstruit pas la file à chaque
+// troupe qui sort, sinon un clic d'annulation tombe dans le vide. On ajuste
+// juste le nombre de cases et on ne redessine une case que si elle change
+// d'unité.
 function majFile(j) {
-  const signature = j.file.map(f => f.def.id).join(',');
-  if (signature !== signatureFile) {
-    signatureFile = signature;
-    el.file.innerHTML = '';
-    j.file.forEach((entree, i) => {
-      const c = document.createElement('div');
-      c.className = 'case';
-      c.title = nomDe(entree.def);
-      const cv = document.createElement('canvas');
-      cv.width = 92; cv.height = 92;
-      const p = document.createElement('div');
-      p.className = 'progres';
-      c.append(cv, p);
-      c.addEventListener('click', () => {
-        // Cliquer sur la dernière case rembourse l'entraînement.
-        if (i === j.file.length - 1) annulerDernier(etat.camps.joueur);
-      });
-      el.file.appendChild(c);
-      dessinerApercu(cv, entree.def);
-    });
-  }
-  // Avancement de la case en cours
   const cases = el.file.children;
-  if (cases.length && j.file.length) {
-    const tete = j.file[0];
-    const barre = cases[0].querySelector('.progres');
-    if (barre) barre.style.width = (100 * (1 - tete.restant / tete.total)) + '%';
-    for (let i = 1; i < cases.length; i++) {
-      const b = cases[i].querySelector('.progres');
-      if (b) b.style.width = '0%';
+  while (cases.length > j.file.length) el.file.removeChild(el.file.lastChild);
+  while (cases.length < j.file.length) el.file.appendChild(creerCaseFile());
+
+  j.file.forEach((entree, i) => {
+    const c = cases[i];
+    if (c.dataset.unite !== entree.def.id) {
+      c.dataset.unite = entree.def.id;
+      c.title = nomDe(entree.def);
+      dessinerApercu(c.querySelector('canvas'), entree.def);
     }
-  }
+    const barre = c.querySelector('.progres');
+    barre.style.width = (i === 0 ? 100 * (1 - entree.restant / entree.total) : 0) + '%';
+  });
+}
+
+function creerCaseFile() {
+  const c = document.createElement('div');
+  c.className = 'case';
+  const cv = document.createElement('canvas');
+  cv.width = 92; cv.height = 92;
+  const progres = document.createElement('div');
+  progres.className = 'progres';
+  c.append(cv, progres);
+  c.addEventListener('click', () => {
+    // Cliquer la DERNIÈRE case annule et rembourse. On retrouve sa place au
+    // moment du clic : la file a pu avancer depuis la création de la case.
+    const joueur = etat.camps.joueur;
+    const place = Array.prototype.indexOf.call(el.file.children, c);
+    if (place === joueur.file.length - 1) annulerDernier(joueur);
+  });
+  return c;
 }
