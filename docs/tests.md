@@ -66,18 +66,42 @@ const j = etat.camps.joueur;
 j.aubaine = null; j.bonusRevenu = 1;   // le « joueur » n'a aucun avantage
 ```
 
-Repères mesurés sur 14 parties par mode :
+Repères mesurés sur 24 parties par mode :
 
 | Mode | Victoires de l'ordinateur | Durée moyenne |
 |---|---|---|
-| Facile | ~20 % | ~14 min |
-| Normal | ~64 % | ~9 min |
-| Difficile | ~86 % | ~8 min |
+| Facile | ~38 % | ~11 min |
+| Normal | ~75 % | ~8 min |
+| Difficile | ~100 % | ~8 min |
 
-Si Facile se met à gagner plus que Normal, c'est qu'un réglage de difficulté
-tire dans le mauvais sens — c'est déjà arrivé avec `agressivite`, qui poussait
-l'IA « facile » à mieux investir dans son économie et donc à gagner davantage
-sur les parties longues.
+**Prendre 24 parties minimum.** Sur 12 parties, un témoin qui affronte une
+copie exacte de lui-même sort à 17 % ou à 63 % au lieu de 50 % : à ce
+niveau de bruit on règle n'importe quoi. On peut aussi lire la **marge**
+(différence de points de vie des châteaux en fin de partie, en pourcentage),
+bien moins bruitée qu'un simple compte de victoires.
+
+### ⚠ Calibrer un curseur AVANT de s'en servir
+
+Deux réglages de difficulté ont déjà tiré dans le **mauvais sens**, et les
+deux fois le mode facile s'est mis à gagner plus que le mode normal :
+
+- `agressivite` poussait l'IA « facile » à mieux investir dans son économie ;
+- `reflexion` n'est pas un curseur « plus vite = plus fort » : 0,7 seconde est
+  l'optimum et **s'en écarter dans les deux sens affaiblit** (0 % de victoires
+  à 0,45 s, 7 % à 1,1 s). On ne s'en sert que pour affaiblir le mode facile.
+
+La bonne méthode : faire affronter **un seul réglage modifié** à un camp de
+référence tout neutre, 30 parties, moitié à gauche moitié à droite pour
+annuler tout effet de côté. Résultats de cette calibration :
+
+| Réglage testé | Victoires | Effet |
+|---|---|---|
+| revenu ×1,15 et ×1,40 | 87 % / 83 % | **levier fort** |
+| ravitaillement fort | 97 % | **levier fort** |
+| ravitaillement moyen | 67 % | levier moyen |
+| pousseeLibre 1 (au lieu de 3) | 30 % | affaiblit nettement |
+| revenuMax 5 (au lieu de 11) | 53 % | effet faible |
+| reflexion 0,45 / 1,10 | 0 % / 7 % | **affaiblit dans les deux sens** |
 
 ## ⚠ Le test le plus important : la bataille en miroir
 

@@ -31,6 +31,7 @@ export function demarrerPartie(difficulte = 'normal') {
     agressivite: reg.agressivite,
     reflexion: reg.reflexion,
     revenuMax: reg.revenuMax,
+    pousseeLibre: reg.pousseeLibre,
     aubaine: reg.aubaine,
   });
   etat.ecran = 'jeu';

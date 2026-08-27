@@ -63,16 +63,29 @@ export const R = {
     // reste proportionné à l'âge de la partie. En facile, il n'en reçoit pas.
     //   secondes : combien de secondes de revenu il empoche (tirage au sort)
     //   delai    : combien de temps entre deux ravitaillements (tirage au sort)
-    //   revenu      : multiplie son or par seconde
-    //   reflexion   : secondes entre deux décisions (plus court = réagit plus vite)
-    //   revenuMax   : jusqu'où il monte son revenu
-    //   agressivite : plus haut = préfère les troupes à l'économie
-    facile:    { revenu: 0.70, agressivite: 0.8,  reflexion: 1.2, revenuMax: 5,
-                 aubaine: null },
-    normal:    { revenu: 1.00, agressivite: 1.0,  reflexion: 0.7, revenuMax: 9,
-                 aubaine: { secondes: [26, 42], delai: [34, 58] } },
-    difficile: { revenu: 1.30, agressivite: 1.25, reflexion: 0.5, revenuMax: 12,
-                 aubaine: { secondes: [34, 55], delai: [24, 44] } },
+    //   revenu       : multiplie son or par seconde        ← LEVIER FORT
+    //   aubaine      : ravitaillement surprise              ← LEVIER FORT
+    //   pousseeLibre : troupes gardées en marche quand le terrain est vide
+    //   revenuMax    : jusqu'où il monte son revenu (effet faible)
+    //   agressivite  : plus haut = préfère les troupes à l'économie (effet faible)
+    //
+    //   ⚠ reflexion N'EST PAS un curseur « plus vite = plus fort ».
+    //   Mesuré sur 30 parties par valeur : à 0,7 s l'ordinateur est au mieux ;
+    //   à 0,45 s il perd 100 % de ses duels, à 1,1 s il en perd 93 %. Trop
+    //   vite, il dépense son or au fur et à mesure et n'accumule jamais de
+    //   quoi faire un vrai achat ; trop lent, il laisse passer les occasions.
+    //   → On ne s'en sert donc QUE pour AFFAIBLIR (mode facile). En normal et
+    //     en difficile il reste à 0,7. Cette erreur a déjà été commise deux
+    //     fois : lire « Mesurer la difficulté » dans docs/tests.md avant d'y
+    //     toucher.
+    facile:    { revenu: 0.90, agressivite: 0.85, reflexion: 1.05, revenuMax: 8,
+                 pousseeLibre: 3, aubaine: null },
+    normal:    { revenu: 1.15, agressivite: 1.05, reflexion: 0.70, revenuMax: 11,
+                 pousseeLibre: 4,
+                 aubaine: { secondes: [32, 48], delai: [30, 50] } },
+    difficile: { revenu: 1.40, agressivite: 1.30, reflexion: 0.70, revenuMax: 12,
+                 pousseeLibre: 4,
+                 aubaine: { secondes: [46, 70], delai: [20, 36] } },
   },
 };
 

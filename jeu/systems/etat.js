@@ -44,6 +44,7 @@ export function creerCamp(id, options = {}) {
     bonusRevenu: options.bonusRevenu || 1,
     reflexion: options.reflexion || R.ia.reflexion,   // sa vitesse de réaction
     revenuMaxIA: options.revenuMax || R.ia.revenuMax, // jusqu'où il monte son revenu
+    pousseeLibre: options.pousseeLibre || R.ia.pousseeLibre, // pression quand le terrain est vide
     aubaine: options.aubaine || null,      // ravitaillement surprise (difficulté)
     aubaineTimer: options.aubaine ? entre(options.aubaine.delai) : Infinity,
     agressivite: options.agressivite || 1,

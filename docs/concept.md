@@ -264,10 +264,11 @@ mêmes lois que le joueur. Elle joue sur quatre curseurs seulement.
 
 | | Facile | Normal | Difficile |
 |---|---|---|---|
-| Revenu | ×0,70 | ×1,00 | ×1,30 |
-| Réaction (secondes entre deux décisions) | 1,2 | 0,7 | 0,5 |
-| Revenu maximum | niveau 5 | niveau 9 | niveau 12 |
-| **Ravitaillement surprise** | aucun | 26 à 42 s de revenu, toutes les 34 à 58 s | 34 à 55 s de revenu, toutes les 24 à 44 s |
+| Revenu | ×0,90 | ×1,15 | ×1,40 |
+| Réaction (secondes entre deux décisions) | 1,05 | 0,70 | 0,70 |
+| Revenu maximum | niveau 8 | niveau 11 | niveau 12 |
+| Pression sur terrain vide | 3 troupes | 4 troupes | 4 troupes |
+| **Ravitaillement surprise** | aucun | 32 à 48 s de revenu, toutes les 30 à 50 s | 46 à 70 s de revenu, toutes les 20 à 36 s |
 
 Le **ravitaillement** est le curseur qui rend l'adversaire vraiment coriace :
 de temps en temps, il empoche l'équivalent de X secondes de son propre revenu.
@@ -275,11 +276,17 @@ Comme le bonus est proportionnel à son revenu, il reste juste dosé à tous les
 âges. Il est **annoncé au joueur** (« Convoi ennemi : +171 or ») et un chiffre
 doré monte de son château : un bonus caché passerait pour de la triche.
 
-Résultat mesuré, 14 parties par mode, l'ordinateur affrontant la même cervelle
-mais sans aucun bonus : il gagne **~20 %** en facile, **~64 %** en normal,
-**~86 %** en difficile. Attention si on retouche ces chiffres : `agressivite`
-tirait autrefois dans le mauvais sens et rendait le mode facile plus fort que
-le mode normal.
+**⚠ La vitesse de réaction n'est pas un curseur « plus vite = plus fort ».**
+Mesuré sur 30 parties par valeur : à 0,7 seconde l'ordinateur est à son
+meilleur ; à 0,45 s il perd **100 %** de ses duels, à 1,1 s il en perd 93 %.
+Trop rapide, il dépense son or au fur et à mesure et n'accumule jamais de quoi
+faire un vrai achat ; trop lent, il laisse passer les occasions. On ne s'en
+sert donc que pour **affaiblir** le mode facile. Les deux seuls curseurs qui
+renforcent vraiment sont le **revenu** et le **ravitaillement**.
+
+Résultat mesuré, 24 parties par mode, l'ordinateur affrontant la même cervelle
+mais sans aucun bonus : il gagne **38 %** en facile, **75 %** en normal,
+**100 %** en difficile.
 
 ## 10. Contraintes permanentes
 

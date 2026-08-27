@@ -78,7 +78,7 @@ export function majIA(dt, camp = etat.camps.ennemi) {
   //    pendant qu'un joueur qui économisait aussi ne voyait rien se passer —
   //    et rester passif ne coûtait rien à personne.
   const occasion = info.menace === 0
-                && (info.nos + camp.file.length) < R.ia.pousseeLibre;
+                && (info.nos + camp.file.length) < (camp.pousseeLibre || R.ia.pousseeLibre);
   if (!occasion) {
     if (veutRevenu(camp, info)) { ameliorerRevenu(camp); return; }
     if (veutDefense(camp, info)) { ameliorerDefense(camp); return; }
