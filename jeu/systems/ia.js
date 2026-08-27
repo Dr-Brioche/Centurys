@@ -15,7 +15,7 @@
 //  reprendre toujours la même.
 // ============================================================
 
-import { R, coutRevenu, coutDefense, coutReparation } from '../data/reglages.js';
+import { R, coutRevenu, coutDefense, coutReparation, tourellesDe } from '../data/reglages.js';
 import { AGES } from '../data/ages.js';
 import { etat, autre } from './etat.js';
 import { acheterUnite, ameliorerRevenu, evoluer, peutEvoluer, assezXpPourEvoluer,
@@ -273,10 +273,11 @@ function veutRevenu(camp, info) {
 function veutDefense(camp, info) {
   const prix = coutDefense(camp);
   if (prix === Infinity || camp.or < prix) return false;
-  // Sous pression, épaissir les murs vaut n'importe quelle troupe.
+  // Un niveau de remparts donne des PV ET un emplacement de tourelle : ce
+  // n'est plus un luxe, c'est le seul moyen d'avoir plus d'une tourelle.
   if (info.enDanger) return true;
-  // Sinon c'est un luxe : seulement quand le revenu tourne et qu'on est à l'aise.
-  return camp.revenuNiveau >= 3 && camp.or >= prix * 2;
+  if (camp.defenseNiveau === 0) return true;          // le premier rempart, toujours
+  return camp.or >= prix * 1.4;
 }
 
 function veutTourelle(camp, info) {

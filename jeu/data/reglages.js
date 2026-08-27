@@ -30,11 +30,22 @@ export const R = {
   // --- La file d'entraînement
   fileMax: 5,              // nombre d'unités qu'on peut mettre en attente
 
-  // --- La défense du château (les murs)
-  defenseMax: 8,           // niveaux d'épaississement possibles
-  defenseCout: 160,        // prix du 1er niveau
-  defenseMult: 1.5,        // le prix est multiplié par ça à chaque niveau
-  defensePas: 0.12,        // chaque niveau ajoute 12 % des PV de départ
+  // --- La défense du château : TROIS niveaux de remparts.
+  //     Chaque niveau fait trois choses d'un coup : il ajoute des points de
+  //     vie, il DÉBLOQUE UN EMPLACEMENT DE TOURELLE, et il fait grandir un
+  //     mur devant le château. C'est ce qui relie les deux boutons : sans
+  //     remparts, on n'a qu'une seule tourelle.
+  defenseMax: 3,           // trois niveaux de remparts
+  defenseCout: 250,        // prix du 1er niveau
+  defenseMult: 1.95,       // le prix est multiplié par ça à chaque niveau
+  defensePas: 0.18,        // chaque niveau ajoute 18 % des PV de départ
+  //     Le mur avance le bord du château : les assaillants s'arrêtent dessus.
+  mur: [
+    null,                            // niveau 0 : pas de mur
+    { largeur: 44, hauteur: 48 },
+    { largeur: 62, hauteur: 70 },
+    { largeur: 82, hauteur: 92 },    // au 3e, une tourelle se pose dessus
+  ],
 
   // --- La réparation
   reparerPart: 0.25,       // remet un quart des PV maximum
@@ -42,8 +53,8 @@ export const R = {
   reparerParAge: 0.9,      // ... et il grimpe de 90 % du prix de base par âge
 
   // --- Les tourelles de château
-  tourellesMax: 3,             // emplacements sur chaque château
-  tourelleMult: [1, 1.5, 2.1], // l'emplacement n°2 puis n°3 coûtent plus cher
+  tourellesMax: 4,                  // plafond : 1 au départ, +1 par niveau de mur
+  tourelleMult: [1, 1.5, 2.1, 2.8], // chaque emplacement suivant coûte plus cher
   tourelleMiseAJour: 0.8,      // remplacer une vieille tourelle coûte 80 % du prix
 
   // --- Le combat
@@ -78,16 +89,22 @@ export const R = {
     //     en difficile il reste à 0,7. Cette erreur a déjà été commise deux
     //     fois : lire « Mesurer la difficulté » dans docs/tests.md avant d'y
     //     toucher.
-    facile:    { revenu: 0.90, agressivite: 0.85, reflexion: 1.05, revenuMax: 8,
+    facile:    { revenu: 0.97, agressivite: 0.85, reflexion: 1.05, revenuMax: 8,
                  pousseeLibre: 3, aubaine: null },
-    normal:    { revenu: 1.15, agressivite: 1.05, reflexion: 0.70, revenuMax: 11,
+    normal:    { revenu: 1.20, agressivite: 1.05, reflexion: 0.70, revenuMax: 11,
                  pousseeLibre: 4,
-                 aubaine: { secondes: [32, 48], delai: [30, 50] } },
+                 aubaine: { secondes: [34, 50], delai: [30, 48] } },
     difficile: { revenu: 1.40, agressivite: 1.30, reflexion: 0.70, revenuMax: 12,
                  pousseeLibre: 4,
                  aubaine: { secondes: [46, 70], delai: [20, 36] } },
   },
 };
+
+// Emplacements de tourelle actuellement disponibles : un au départ,
+// puis un de plus par niveau de remparts.
+export function tourellesDe(camp) {
+  return Math.min(R.tourellesMax, 1 + camp.defenseNiveau);
+}
 
 // Prix du prochain niveau de mur (Infinity quand on est au maximum).
 export function coutDefense(camp) {

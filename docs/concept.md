@@ -81,7 +81,9 @@ de finition, c'est un tournevis.
 
 ## 5. Les tourelles de château
 
-Chaque château a **trois emplacements**, vides au départ. Une tourelle :
+Chaque château a **un seul emplacement au départ**. Les suivants se débloquent
+en montant les remparts (§ 6) : un emplacement par niveau, jusqu'à quatre.
+Une tourelle :
 
 - se construit avec de l'or, à l'âge où on se trouve (une tourelle par âge :
   lanceur de rochers, baliste, trébuchet, mitrailleuse, canon à plasma) ;
@@ -90,11 +92,11 @@ Chaque château a **trois emplacements**, vides au départ. Une tourelle :
 - **ne peut pas être détruite** : la barre de vie du château est la seule
   barre de défaite, et le joueur n'a donc rien à réparer.
 
-Le premier emplacement coûte le prix de base, le deuxième ×1,5, le troisième
-×2,1 : chaque tourelle supplémentaire vaut moins que la précédente. Quand les
-trois emplacements sont pris, le même bouton **remplace automatiquement la
+Le premier emplacement coûte le prix de base, puis ×1,5, ×2,1 et ×2,8 : chaque
+tourelle supplémentaire vaut moins que la précédente. Quand tous les
+emplacements ouverts sont pris, le même bouton **remplace automatiquement la
 tourelle la plus dépassée** par une du modèle courant, pour 80 % du prix — il
-n'y a jamais de choix à faire entre trois emplacements identiques, donc jamais
+n'y a jamais de choix à faire entre des emplacements identiques, donc jamais
 de clic inutile à demander au joueur.
 
 Leur rôle dans la boucle : c'est le **troisième usage de l'or**, à côté des
@@ -108,10 +110,17 @@ l'or et de l'expérience.
 La barre de vie du château est la seule barre de défaite. Deux boutons agissent
 dessus, et tous les deux se paient avec la même bourse que les troupes :
 
-- **Défense** — épaissit les murs : +12 % des PV de départ par niveau, huit
-  niveaux au maximum, prix ×1,5 à chaque fois (160, 240, 360, 540…). Le gain
-  est ajouté **aussi aux PV actuels** : sinon épaissir ses murs creuserait un
-  trou dans sa propre barre de vie, ce qui n'a aucun sens pour le joueur.
+- **Défense** — monte les remparts. **Trois niveaux seulement** (250, 488, 951),
+  mais chacun fait trois choses d'un coup :
+  1. **+18 % des PV de départ**, ajoutés **aussi aux PV actuels** — sinon
+     renforcer ses murs creuserait un trou dans sa propre barre de vie, ce qui
+     n'a aucun sens pour le joueur ;
+  2. **un emplacement de tourelle en plus** : c'est le seul moyen d'en avoir
+     plus d'une, et c'est ce qui relie les deux boutons au lieu d'en avoir
+     deux indépendants ;
+  3. **un mur qui grandit devant le château**, et qui **repousse la ligne de
+     contact** : les assaillants s'arrêtent sur le rempart, plus sur le donjon.
+     Au troisième niveau, la quatrième tourelle se pose **sur le rempart**.
 - **Réparer** — rend **un quart des PV maximum**, d'un coup. Le prix monte
   avec l'âge (220 à l'âge de pierre, plus de 1 000 à l'âge futuriste) et avec
   l'épaisseur des murs, puisqu'on répare un quart d'un château devenu plus
@@ -264,11 +273,11 @@ mêmes lois que le joueur. Elle joue sur quatre curseurs seulement.
 
 | | Facile | Normal | Difficile |
 |---|---|---|---|
-| Revenu | ×0,90 | ×1,15 | ×1,40 |
+| Revenu | ×0,97 | ×1,20 | ×1,40 |
 | Réaction (secondes entre deux décisions) | 1,05 | 0,70 | 0,70 |
 | Revenu maximum | niveau 8 | niveau 11 | niveau 12 |
 | Pression sur terrain vide | 3 troupes | 4 troupes | 4 troupes |
-| **Ravitaillement surprise** | aucun | 32 à 48 s de revenu, toutes les 30 à 50 s | 46 à 70 s de revenu, toutes les 20 à 36 s |
+| **Ravitaillement surprise** | aucun | 34 à 50 s de revenu, toutes les 30 à 48 s | 46 à 70 s de revenu, toutes les 20 à 36 s |
 
 Le **ravitaillement** est le curseur qui rend l'adversaire vraiment coriace :
 de temps en temps, il empoche l'équivalent de X secondes de son propre revenu.
@@ -285,7 +294,7 @@ sert donc que pour **affaiblir** le mode facile. Les deux seuls curseurs qui
 renforcent vraiment sont le **revenu** et le **ravitaillement**.
 
 Résultat mesuré, 24 parties par mode, l'ordinateur affrontant la même cervelle
-mais sans aucun bonus : il gagne **38 %** en facile, **75 %** en normal,
+mais sans aucun bonus : il gagne **46 %** en facile, **83 %** en normal,
 **100 %** en difficile.
 
 ## 10. Contraintes permanentes

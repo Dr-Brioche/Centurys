@@ -18,7 +18,8 @@
 //    change que leur TEXTE (voir preparerAction / ecrire plus bas).
 // ============================================================
 
-import { R, coutRevenu, revenuDe, coutDefense, coutReparation } from '../data/reglages.js';
+import { R, coutRevenu, revenuDe, coutDefense, coutReparation,
+         tourellesDe } from '../data/reglages.js';
 import { AGES, xpPourEvoluer } from '../data/ages.js';
 import { etat } from '../systems/etat.js';
 import { t, nomDe } from '../systems/langue.js';
@@ -235,10 +236,12 @@ function majBoutonDefense(j) {
   const gain = Math.round(R.pvChateau * R.defensePas);
   ecrire(m.nom, t('bouton.defense'));
   ecrire(m.prix, max ? t('bouton.max') : prix);
-  ecrire(m.bas, t('bouton.revenuNiv', { n: j.defenseNiveau + 1 }));
+  ecrire(m.bas, max ? t('bouton.revenuNiv', { n: j.defenseNiveau })
+                    : t('bouton.revenuNiv', { n: j.defenseNiveau + 1 }));
   el.btDefense.disabled = max || j.or < prix;
   el.btDefense.title = t('bouton.defense') + '\n'
-    + t('stat.pvMax') + ' : ' + j.pvMax + '\n' + t('stat.gainPv', { n: gain });
+    + t('stat.pvMax') + ' : ' + j.pvMax + '\n' + t('stat.gainPv', { n: gain })
+    + (max ? '' : '\n' + t('stat.emplacementTourelle'));
 }
 
 // Réparer : rend un quart des PV maximum. Le prix monte avec l'âge.
@@ -263,19 +266,20 @@ function majBoutonTourelle(j) {
   const def = AGES[j.age].tourelle;
   const prix = coutTourelle(j);
   const posees = j.tourelles.filter(Boolean).length;
-  const misAJour = posees >= R.tourellesMax && prix !== Infinity;
+  const places = tourellesDe(j);
+  const misAJour = posees >= places && prix !== Infinity;
   const m = morceaux.tourelle;
   ecrire(m.nom, t(misAJour ? 'bouton.ameliorer' : 'bouton.tourelle'));
   ecrire(m.prix, prix === Infinity ? t('bouton.max') : prix);
-  ecrire(m.bas, posees + ' / ' + R.tourellesMax);
+  ecrire(m.bas, posees + ' / ' + places);
   el.btTourelle.disabled = prix === Infinity || j.or < prix;
   el.btTourelle.title = nomDe(def)
     + '\n' + t('stat.degats') + ' : ' + def.degats
     + '\n' + t('stat.portee') + ' : ' + def.portee
     + '\n' + t('stat.cadence') + ' : ' + def.cadence + ' s'
-    + (posees < R.tourellesMax
-        ? '\n' + t('stat.emplacement', { n: posees + 1, max: R.tourellesMax })
-        : '');
+    + (posees < places
+        ? '\n' + t('stat.emplacement', { n: posees + 1, max: places })
+        : (places < R.tourellesMax ? '\n' + t('stat.emplacementTourelle') : ''));
 }
 
 // Changer d'âge coûte de l'or ET de l'expérience : le bouton affiche le prix

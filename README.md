@@ -33,7 +33,7 @@ et c'est ce qui rendra un portage manette simple plus tard.)
 |---|---|
 | `1` `2` `3` | acheter la troupe correspondante |
 | `4` | améliorer le revenu |
-| `5` | épaissir les murs du château |
+| `5` | monter les remparts (+ PV, + 1 emplacement de tourelle) |
 | `R` | réparer le château (un quart de sa vie) |
 | `T` | construire ou améliorer une tourelle de château |
 | `E` | évoluer (changer d'âge) |
@@ -52,7 +52,10 @@ et c'est ce qui rendra un portage manette simple plus tard.)
 2. Chaque troupe tuée donne aussi de l'**expérience**. Passer à l'**âge
    suivant** coûte de l'expérience **et** de l'or : il faut avoir combattu et
    avoir économisé.
-3. Le premier qui met le **château adverse** à zéro gagne.
+3. Ton château démarre avec **une seule tourelle**. Monter les **remparts**
+   (trois niveaux) ajoute des points de vie **et** un emplacement de tourelle
+   à chaque fois — jusqu'à quatre, la dernière posée sur le mur.
+4. Le premier qui met le **château adverse** à zéro gagne.
 
 ## Comment c'est rangé
 

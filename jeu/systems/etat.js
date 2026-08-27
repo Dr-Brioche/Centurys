@@ -65,17 +65,37 @@ export function creerCamp(id, options = {}) {
   };
 }
 
-// Position d'un emplacement de tourelle : posé sur le haut du MUR, pas sur le
-// toit — sinon la tourelle s'emmêle avec la décoration propre à chaque âge.
+// Les remparts : rien au niveau 0, puis un mur qui grandit devant le château.
+export function murDe(camp) {
+  return R.mur[camp.defenseNiveau] || null;
+}
+
+// Bord du donjon lui-même, remparts non compris.
+export function bordDonjon(camp) {
+  return camp.x + camp.sens * (R.chateauLargeur / 2);
+}
+
+// Bord de la défense : c'est LÀ que s'arrêtent les assaillants. Le mur
+// repousse donc la ligne de contact, ce qui est tout l'intérêt d'un rempart.
+export function bordChateau(camp) {
+  const mur = murDe(camp);
+  return bordDonjon(camp) + camp.sens * (mur ? mur.largeur : 0);
+}
+
+// Position d'un emplacement de tourelle. Les trois premiers sont posés sur le
+// haut du MUR du donjon (pas sur le toit, sinon la tourelle s'emmêle avec la
+// décoration propre à chaque âge). Le quatrième se pose sur les remparts.
 export function positionTourelle(camp, i) {
+  const mur = murDe(camp);
+  if (i === 3 && mur) {
+    return {
+      x: bordDonjon(camp) + camp.sens * mur.largeur * 0.5,
+      y: R.solY - mur.hauteur - 2,
+    };
+  }
   const ecarts = [0.33, 0.05, -0.23];
   return {
     x: camp.x + camp.sens * (ecarts[i] || 0) * R.chateauLargeur,
     y: R.solY - R.chateauHauteur + 20,
   };
-}
-
-// Bord du château tourné vers le terrain (la face qu'on vient frapper).
-export function bordChateau(camp) {
-  return camp.x + camp.sens * (R.chateauLargeur / 2);
 }

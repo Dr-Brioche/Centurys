@@ -70,9 +70,9 @@ Repères mesurés sur 24 parties par mode :
 
 | Mode | Victoires de l'ordinateur | Durée moyenne |
 |---|---|---|
-| Facile | ~38 % | ~11 min |
-| Normal | ~75 % | ~8 min |
-| Difficile | ~100 % | ~8 min |
+| Facile | ~46 % | ~13 min |
+| Normal | ~83 % | ~7 min |
+| Difficile | ~100 % | ~7 min |
 
 **Prendre 24 parties minimum.** Sur 12 parties, un témoin qui affronte une
 copie exacte de lui-même sort à 17 % ou à 63 % au lieu de 50 % : à ce
@@ -129,6 +129,11 @@ test.**
   (`../jeu/...`), sinon rien ne se charge.
 - **Modifier une taille de troupe** change aussi son encombrement (`largeur`) :
   c'est lui qui décide de l'espacement dans la file de bataille, pas le dessin.
+- **Les remparts repoussent le bord du château.** `bordDonjon()` donne le mur
+  du donjon, `bordChateau()` le bord de la défense (donjon + rempart) : c'est
+  ce dernier qui décide où s'arrêtent les assaillants, où sortent les troupes
+  et où tombent les projectiles. Toucher au mur, c'est toucher à la géométrie
+  du combat — refaire le test de la bataille en miroir.
 - **La portée d'une troupe se mesure de bord à bord**, pas de centre à centre.
   Une portée de 30 sur une troupe large de 100 laisse un vrai espace visible.
 - **Le camp se reconnaît à la couleur du bandeau et de l'ombre au sol**

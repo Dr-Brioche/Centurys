@@ -5,7 +5,8 @@
 //  joueur ou l'ordinateur qui les déclenche.
 // ============================================================
 
-import { R, coutRevenu, revenuDe, coutDefense, coutReparation } from '../data/reglages.js';
+import { R, coutRevenu, revenuDe, coutDefense, coutReparation,
+         tourellesDe } from '../data/reglages.js';
 import { AGES, xpPourEvoluer } from '../data/ages.js';
 import { etat, creerCamp, autre, bordChateau, positionTourelle, entre } from './etat.js';
 import { son } from '../core/sons.js';
@@ -95,7 +96,7 @@ export function tourelleADepasser(camp) {
 export function coutTourelle(camp) {
   const def = AGES[camp.age].tourelle;
   const posees = camp.tourelles.filter(Boolean).length;
-  if (posees < R.tourellesMax) return Math.round(def.cout * R.tourelleMult[posees]);
+  if (posees < tourellesDe(camp)) return Math.round(def.cout * R.tourelleMult[posees]);
   if (tourelleADepasser(camp) < 0) return Infinity;   // tout est à jour
   return Math.round(def.cout * R.tourelleMiseAJour);
 }
@@ -111,7 +112,7 @@ export function acheterTourelle(camp) {
     return false;
   }
   const def = AGES[camp.age].tourelle;
-  const libre = camp.tourelles.indexOf(null);
+  const libre = camp.tourelles.slice(0, tourellesDe(camp)).indexOf(null);
   const place = (libre >= 0) ? libre : tourelleADepasser(camp);
   camp.or -= prix;
   camp.tourelles[place] = { def, age: camp.age, cd: def.cadence * 0.5, anim: 0 };
@@ -151,7 +152,7 @@ export function ameliorerDefense(camp) {
   // murs creuserait un trou dans la barre de vie, ce qui est absurde.
   const gain = Math.round(R.pvChateau * R.defensePas);
   camp.or -= prix;
-  camp.defenseNiveau++;
+  camp.defenseNiveau++;      // débloque du même coup un emplacement de tourelle
   camp.pvMax += gain;
   camp.pv += gain;
   etat.effets.push({ type: 'renfort', camp: camp.id, t: 0, duree: 1 });
@@ -330,8 +331,8 @@ function faireSortir(camp, def) {
     def,
     pv: def.pv,
     pvMax: def.pv,
-    x: camp.x + camp.sens * (R.chateauLargeur / 2 + def.largeur / 2 + 6),
-    xImage: camp.x + camp.sens * (R.chateauLargeur / 2 + def.largeur / 2 + 6),
+    x: bordChateau(camp) + camp.sens * (def.largeur / 2 + 6),
+    xImage: bordChateau(camp) + camp.sens * (def.largeur / 2 + 6),
     cd: 0,
     marche: true,
     phase: Math.random() * 10,

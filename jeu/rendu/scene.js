@@ -6,7 +6,7 @@
 
 import { R } from '../data/reglages.js';
 import { AGES } from '../data/ages.js';
-import { etat, positionTourelle } from '../systems/etat.js';
+import { etat, positionTourelle, murDe } from '../systems/etat.js';
 import { cheminArrondi, jauge, texteContour } from '../core/style.js';
 import { dessinerUnite, COULEUR_CAMP, assombrir, eclaircir } from './unites.js';
 
@@ -108,6 +108,34 @@ function dessinerChateau(ctx, camp) {
   ctx.save();
   ctx.translate(x, 0);
   ctx.scale(camp.sens, 1);           // le château regarde vers le terrain
+
+  // Les remparts, dessinés AVANT le donjon pour que celui-ci recouvre la
+  // jointure : sinon le mur a l'air d'une petite tour posée à côté.
+  const mur = murDe(camp);
+  if (mur) {
+    const x0 = L / 2 - 20;                // on part de l'intérieur du donjon
+    const l = mur.largeur + 20;
+    const y0 = R.solY - mur.hauteur;
+    ctx.fillStyle = assombrir(pierre, 0.88);
+    cheminArrondi(ctx, x0, y0, l, mur.hauteur, 5); ctx.fill();
+    // créneaux sur le dessus
+    ctx.fillStyle = pierre;
+    const n = Math.max(2, Math.round(l / 22));
+    for (let i = 0; i < n; i++) {
+      cheminArrondi(ctx, x0 + i * (l / n) + 2, y0 - 10, l / n - 5, 12, 3);
+      ctx.fill();
+    }
+    // bandeau du camp et pied épaissi
+    ctx.fillStyle = COULEUR_CAMP[camp.id];
+    cheminArrondi(ctx, x0, y0 + 14, l, 5, 2); ctx.fill();
+    ctx.fillStyle = assombrir(pierre, 0.68);
+    cheminArrondi(ctx, x0, R.solY - 10, l + 4, 10, 3); ctx.fill();
+    // meurtrière, quand le mur est assez haut
+    if (mur.hauteur > 60) {
+      ctx.fillStyle = assombrir(pierre, 0.4);
+      cheminArrondi(ctx, x0 + l * 0.6 - 4, y0 + 30, 8, 18, 3); ctx.fill();
+    }
+  }
 
   // Corps
   ctx.fillStyle = pierre;
