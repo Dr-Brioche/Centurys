@@ -60,6 +60,9 @@ export const R = {
   // --- Le combat
   ecart: 8,                // espace laissé entre deux alliés qui se suivent
   degatsChateauMult: 1,    // multiplicateur de dégâts contre un château
+                           // (essayé à 1,35 pour raccourcir les parties : aucun
+                           //  effet mesurable, les parties longues viennent de
+                           //  troupes qui n'atteignent jamais les murs)
   soinEvolution: 0.12,     // le château se répare de 12 % quand on change d'âge
 
   // --- L'adversaire (ordinateur)

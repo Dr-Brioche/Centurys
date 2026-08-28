@@ -3,6 +3,16 @@
 //  Cinq âges, trois unités chacun. Chaque âge est environ deux
 //  fois plus fort et deux fois plus cher que le précédent.
 //
+//  ⚠ PORTÉE DES TOURELLES : la portée écrite ici est la portée NORMALE,
+//  mesurée depuis la tourelle. Elle peut être plus courte que celle d'une
+//  troupe à distance, et c'est voulu : une règle à part (voir majTourelles
+//  dans systems/combat.js) garantit qu'une troupe capable de frapper les murs
+//  est TOUJOURS atteignable, même si elle tire de plus loin.
+//  Ne pas « régler » ça en allongeant ces portées : essayé et mesuré, les
+//  tourelles finissaient par couvrir 87 % du terrain, plus personne n'avançait
+//  et 6 parties sur 20 finissaient en match nul (contre 1 sur 20 avec la
+//  règle ciblée).
+//
 //  Chaque âge coûte de l'EXPÉRIENCE (xpRequis, gagnée uniquement en tuant)
 //  ET de l'OR (orRequis) : il faut avoir combattu et avoir économisé.
 //

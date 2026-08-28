@@ -22,6 +22,10 @@
 </head>
 <body>
 <h1>Banc d'essai d'équilibrage</h1>
+<p><b>Portée des tourelles</b> : met vraiment en place le siège. Pour chaque âge, on
+pose UNE tourelle de cet âge et on envoie la troupe qui bombarde de plus loin de tout
+le jeu. Elle doit encaisser des dégâts : une troupe capable de frapper les murs ne doit
+jamais pouvoir le faire à l'abri, même si elle tire de plus loin que la tourelle.</p>
 <p><b>Bataille en miroir</b> : deux armées rigoureusement symétriques autour du centre
 du terrain. La bonne réponse est <b>zéro survivant des deux côtés</b>. Si un camp
 survit, le moteur avantage un côté — et comme le joueur est toujours à gauche,
@@ -32,6 +36,7 @@ un test de <b>justice</b> : la répartition des victoires doit tourner autour de
 moitié-moitié. Pour mesurer la difficulté réelle des trois modes, c'est un autre calcul —
 voir « Mesurer la difficulté » dans <code>docs/tests.md</code>.</p>
 
+<button id="btPortees">Portée des tourelles</button>
 <button id="btMiroir">Bataille en miroir</button>
 <button id="btParties">Simuler 10 parties</button>
 <div id="verdict"></div>
@@ -77,6 +82,49 @@ function bataille(ids) {
   }
   return { gauche: -1, droite: -1, secondes: 240 };
 }
+
+document.getElementById('btPortees').addEventListener('click', e => {
+  e.target.disabled = true;
+  // La troupe qui se poste le plus loin du bord de la défense, tous âges confondus.
+  let pire = null, distance = 0;
+  for (const age of AGES) for (const u of age.unites) {
+    const d = u.portee + u.largeur / 2;
+    if (d > distance) { distance = d; pire = u; }
+  }
+
+  const lignes = [];
+  let bon = true;
+  AGES.forEach((age, ia) => {
+    C.demarrerPartie('normal');
+    const j = etat.camps.joueur;
+    j.age = ia; j.or = 999999;
+    j.tourelles.fill(null);
+    C.acheterTourelle(j);                    // une seule tourelle, celle de cet âge
+    etat.unites.length = 0;
+    const x = 900;
+    etat.unites.push({ camp: 'ennemi', sens: -1, def: pire, pv: 999999, pvMax: 999999,
+                       x, xImage: x, cd: 0, marche: true, phase: 0, animAttaque: 0,
+                       flash: 0, mort: false, fade: 0 });
+    for (let t = 0; t < 700; t++) C.majJeu(0.05);   // 35 secondes de siège
+    const u = etat.unites.find(v => v.camp === 'ennemi');
+    const recus = Math.round(u.pvMax - u.pv);
+    const poste = Math.round(Math.abs(u.x - bordChateau(j)));
+    const ok = recus > 0;
+    if (!ok) bon = false;
+    lignes.push({ 'âge': age.nom.fr, 'tourelle': age.tourelle.nom.fr,
+                  'portée tourelle': age.tourelle.portee,
+                  'assiégeant posté à': poste + ' px',
+                  'dégâts encaissés en 35 s': recus,
+                  'verdict': ok ? '<span class="bien">atteint</span>'
+                                : '<span class="mal">INTOUCHABLE</span>' });
+  });
+  sortie.innerHTML = tableau(lignes);
+  verdict.innerHTML = bon
+    ? '<span class="bien">✔ Toute troupe capable de frapper les murs est sous le feu des tourelles.</span>'
+      + ' (la plus lointaine : ' + pire.nom.fr + ', postée à ' + Math.round(distance) + ' px)'
+    : '<span class="mal">✘ Une troupe à distance peut bombarder hors d\'atteinte des tourelles.</span>';
+  e.target.disabled = false;
+});
 
 document.getElementById('btMiroir').addEventListener('click', e => {
   e.target.disabled = true;

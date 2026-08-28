@@ -88,6 +88,13 @@ Une tourelle :
 - se construit avec de l'or, à l'âge où on se trouve (une tourelle par âge :
   lanceur de rochers, baliste, trébuchet, mitrailleuse, canon à plasma) ;
 - **tire toute seule** sur la troupe adverse la plus proche à sa portée ;
+- **atteint toujours ce qui frappe les murs**, même une troupe qui tire de
+  plus loin qu'elle : sans cette règle, un fantassin laser (portée 370)
+  bombardait un château de l'âge de pierre (tourelle 240) en toute impunité,
+  et les tourelles étaient inutiles contre exactement ce qu'elles doivent
+  arrêter. La règle ne vise que l'assiégeant — allonger la portée de toutes
+  les tourelles a été essayé et mesuré : elles couvraient 87 % du terrain,
+  plus personne n'avançait et 6 parties sur 20 finissaient en match nul ;
 - **ne vise jamais un château** : c'est une arme de défense, pas de finition ;
 - **ne peut pas être détruite** : la barre de vie du château est la seule
   barre de défaite, et le joueur n'a donc rien à réparer.

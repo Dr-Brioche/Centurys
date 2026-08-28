@@ -292,11 +292,30 @@ function majTourelles(camp, dt) {
     if (t.cd > 0) { t.cd -= dt; continue; }
 
     const pos = positionTourelle(camp, i);
+    const bord = bordChateau(camp);
     let cible = null, meilleure = Infinity;
     for (const u of etat.unites) {
       if (u.mort || u.camp === camp.id) continue;
-      const d = Math.abs(u.x - pos.x);
-      if (d <= t.def.portee && d < meilleure) { meilleure = d; cible = u; }
+      const versLaTourelle = Math.abs(u.x - pos.x);   // sa portée normale
+      const versLeMur = Math.abs(u.x - bord);         // sa distance à la défense
+
+      // ⚠ RÈGLE : une troupe capable de frapper les murs est TOUJOURS à
+      // portée des tourelles, même si elle tire de plus loin qu'elles.
+      // Sans ça, un fantassin laser (portée 370) bombardait un château de
+      // l'âge de pierre (tourelle 240) sans jamais être inquiété — les
+      // tourelles étaient inutiles contre exactement ce qu'elles doivent
+      // arrêter.
+      // ⚠ Et on ne corrige PAS ça en allongeant les portées ni en les
+      // mesurant depuis le mur : les deux ont été essayés et mesurés, les
+      // tourelles finissaient par couvrir presque tout le terrain, plus
+      // personne n'avançait et une partie sur trois finissait en match nul.
+      // On vise donc seulement l'assiégeant, et rien d'autre ne change.
+      const assiege = versLeMur <= u.def.portee + u.def.largeur / 2 + 6;
+
+      if ((versLaTourelle <= t.def.portee || assiege) && versLeMur < meilleure) {
+        meilleure = versLeMur;
+        cible = u;
+      }
     }
     if (!cible) continue;
 

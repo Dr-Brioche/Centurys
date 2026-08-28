@@ -129,6 +129,12 @@ test.**
   (`../jeu/...`), sinon rien ne se charge.
 - **Modifier une taille de troupe** change aussi son encombrement (`largeur`) :
   c'est lui qui décide de l'espacement dans la file de bataille, pas le dessin.
+- **Une tourelle doit pouvoir riposter à ce qui frappe ses murs.** Le bouton
+  « Portée des tourelles » du banc d'essai monte un vrai siège : pour chaque
+  âge, une tourelle de cet âge contre la troupe qui bombarde de plus loin du
+  jeu. Elle doit encaisser des dégâts. **Ne jamais corriger un manque de
+  portée en allongeant les portées** : mesuré, ça fait couvrir 87 % du terrain
+  aux tourelles et passe les matchs nuls de 1 sur 20 à 6 sur 20.
 - **Les remparts repoussent le bord du château.** `bordDonjon()` donne le mur
   du donjon, `bordChateau()` le bord de la défense (donjon + rempart) : c'est
   ce dernier qui décide où s'arrêtent les assaillants, où sortent les troupes
